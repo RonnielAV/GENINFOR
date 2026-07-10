@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Diagnóstico NORTIC - CONAPE</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        conape: {
+                            navy: '#0d3c6c',
+                            red: '#da291c',
+                            gray: '#f8fafc',
+                            dark: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @font-face {
+            font-family: 'Calibri Light';
+            src: local('Calibri Light'), local('Calibri-Light');
+            font-weight: 300;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Calibri';
+            src: local('Calibri');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        /* Jerarquía Tipográfica de Calibri Light de Extrema Formalidad */
+        .calibri-report {
+            font-family: 'Calibri Light', 'Calibri', 'Segoe UI', sans-serif !important;
+        }
+
+        /* Título de Portada: Calibri Light, negrita, tamaño 30 */
+        .calibri-cover-title {
+            font-family: 'Calibri Light', 'Calibri', sans-serif !important;
+            font-size: 30px !important;
+            font-weight: bold !important;
+            line-height: 1.15 !important;
+        }
+
+        /* Encabezados y títulos de secciones principales: Calibri Light, negrita, tamaño 14 */
+        .calibri-header {
+            font-family: 'Calibri Light', 'Calibri', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
+            line-height: 1.15 !important;
+        }
+
+        /* Título de contenido / subtítulos: Calibri Light, tamaño 12 (Bold para jerarquía) */
+        .calibri-content-title {
+            font-family: 'Calibri Light', 'Calibri', sans-serif !important;
+            font-size: 12px !important;
+            font-weight: bold !important;
+            line-height: 1.15 !important;
+        }
+
+        /* Contenido y párrafos generales: Calibri Light, tamaño 12 */
+        .calibri-body {
+            font-family: 'Calibri Light', 'Calibri', sans-serif !important;
+            font-size: 12px !important;
+            line-height: 1.15 !important;
+        }
+
+        /* Pie de página: Calibri Light, tamaño 10 */
+        .calibri-footer {
+            font-family: 'Calibri Light', 'Calibri', sans-serif !important;
+            font-size: 10px !important;
+            line-height: 1.15 !important;
+        }
+
+        /* Interlineado general estricto de 1.15 con espacio de párrafo o ítem */
+        .calibri-report p, 
+        .calibri-report li, 
+        .calibri-report table,
+        .calibri-report dt,
+        .calibri-report dd {
+            line-height: 1.15 !important;
+            margin-bottom: 1.15em !important;
+        }
+
+        .calibri-report h2,
+        .calibri-report h3,
+        .calibri-report h4 {
+            line-height: 1.15 !important;
+            margin-bottom: 0.4em !important;
+            margin-top: 0.8em !important;
+        }
+
+        body {
+            font-family: 'Calibri Light', 'Calibri', 'Segoe UI', sans-serif;
+            background-color: #f1f5f9;
+            overflow: hidden;
+        }
+
+        #document-preview-area {
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        /* Simulación de página física Letter con altura adaptable y margen de seguridad inferior */
+        .paper-page {
+            width: 8.5in;
+            min-height: 11in;
+            height: auto;
+            padding: 1.2in 1in 1.25in 1in !important; /* Margen inferior ampliado para evitar colisiones con el footer */
+            margin: 2.5rem auto;
+            background: white;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Portada especial sin sangría inferior para expandir el panel azul */
+        .cover-page {
+            padding: 0 !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            height: 11in;
+        }
+
+        /* Contenedores de Encabezados y Pies de página absolutos e inmunes a superposiciones */
+        .calibri-header-container {
+            position: absolute;
+            top: 0.5in;
+            left: 1in;
+            right: 1in;
+            height: 0.4in;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .calibri-footer-container {
+            position: absolute;
+            bottom: 0.5in;
+            left: 1in;
+            right: 1in;
+            height: 0.4in;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-top: 1px solid #cbd5e1;
+        }
+
+        /* Líneas guías del índice */
+        .index-line {
+            display: flex;
+            align-items: bottom;
+            justify-content: space-between;
+        }
+        .index-line::after {
+            content: " .............................................................................................................................................................................";
+            order: 2;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            flex-grow: 1;
+            margin: 0 8px;
+        }
+        .index-title {
+            order: 1;
+            background: white;
+            padding-right: 4px;
+        }
+        .index-number {
+            order: 3;
+            background: white;
+            padding-left: 4px;
+            font-weight: 600;
+        }
+
+        /* Estilo foco edición */
+        [contenteditable="true"]:focus {
+            outline: 2px dashed #0d3c6c;
+            outline-offset: 4px;
+            background-color: rgba(241, 245, 249, 0.5);
+        }
+
+        /* Ocultar marcador de detalles */
+        details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        /* Personalización de barra de scroll */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        #sidebar-container [contenteditable="true"],
+        #sidebar-container [contenteditable="true"] *,
+        #sidebar-container textarea,
+        #sidebar-container input,
+        #sidebar-container select {
+            color: #000000 !important;
+        }
+
+        /* Clases personalizadas de contraste solicitadas (Scoped para que NO afecten la portada) */
+        .paper-page:not(.cover-page) .font-medium {
+            color: black !important;
+        }
+        .paper-page:not(.cover-page) .text-amber-800 {
+            --tw-text-opacity: 1 !important;
+            color: rgb(0 0 0) !important;
+        }
+
+        @media print {
+            body, 
+            #app-layout, 
+            #document-preview-area, 
+            #print-area {
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                overflow: visible !important;
+            }
+            .print\:hidden {
+                display: none !important;
+            }
+            #app-layout {
+                display: block !important;
+            }
+            #document-preview-area {
+                height: auto !important;
+                overflow: visible !important;
+                width: 100% !important;
+            }
+            /* Forzar que cada página sea exactamente una hoja Carta física sin bordes grises */
+            .paper-page {
+                width: 8.5in !important;
+                height: 11in !important;
+                margin: 0 auto !important;
+                padding: 1.2in 1in 1.25in 1in !important;
+                box-shadow: none !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                box-sizing: border-box !important;
+                position: relative !important;
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                overflow: hidden !important;
+            }
+            .cover-page {
+                padding: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                height: 11in !important;
+                position: relative !important;
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                overflow: hidden !important;
+            }
+            /* Mapeado y anulación de márgenes del navegador para evitar franjas grises */
+            @page {
+                size: letter;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-900 antialiased selection:bg-conape-navy selection:text-white calibri-report">
+
+    <!-- CONTENEDOR DE LA APLICACIÓN -->
+    <div id="app-layout" class="flex h-screen w-screen overflow-hidden print:block print:h-auto print:w-auto">
+
+        <!-- LADO IZQUIERDO: PANEL DE EDICIÓN COLLAPSIBLE (Oculto al imprimir) -->
+        <div id="sidebar-container" class="print:hidden fixed lg:relative z-30 h-screen bg-slate-900 border-r border-slate-800 flex flex-col text-slate-100 shrink-0 shadow-2xl transition-all duration-300 w-[420px] -translate-x-full lg:translate-x-0">
+            
+            <!-- BOTÓN DE COLAPSO (Ojo interactivo) -->
+            <button onclick="toggleSidebar()" class="absolute top-4 left-full ml-3 bg-slate-900 border border-slate-700 text-white hover:bg-slate-850 p-2.5 rounded-lg shadow-xl flex items-center gap-1.5 transition-all duration-200" title="Ver/Ocultar Editor">
+                <span id="toggle-icon-container">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+                </span>
+                <span id="toggle-text" class="text-xs font-bold uppercase tracking-wider hidden sm:inline">Editor</span>
+            </button>
+
+            <!-- Encabezado del Panel -->
+            <div class="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-conape-red"></span>
+                    <h2 class="font-black text-xs uppercase tracking-widest text-white">Consola de Edición DTIC</h2>
+                </div>
+                <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">v3.0</span>
+            </div>
+
+            <!-- Cuerpo del Editor con Scroll y entradas de fondo claro con texto en negro -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+
+                <!-- Botones Principales de Acción -->
+                <div class="space-y-2">
+                    <button onclick="window.print()" class="w-full bg-conape-navy hover:bg-blue-800 text-white font-extrabold py-2 px-3 rounded text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Imprimir / Guardar PDF
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="downloadTemplateJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Exportar JSON
+                        </button>
+                        <label class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5 cursor-pointer text-center">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            Importar JSON
+                            <input type="file" id="json-file-input" accept=".json" class="hidden" onchange="importJSON(event)">
+                        </label>
+                    </div>
+                    
+                    <!-- NUEVO BOTÓN: DESCARGAR A WORD (.DOCX COMPATIBLE) -->
+                    <button onclick="exportToDocx()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-2 px-3 rounded text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Descargar a .docx (Word)
+                    </button>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="clearDocument()" class="w-full bg-red-800 hover:bg-red-700 text-white border border-red-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            Borrar Todo / Vaciar
+                        </button>
+                        <button onclick="toggleFaltantes()" id="btn-faltantes" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1 border border-slate-700">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="text-[9px] uppercase font-bold tracking-wider">Incluir Sec 12</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PESTAÑA 1: PORTADA Y METADATOS -->
+                <details class="group bg-slate-950 rounded border border-slate-800 overflow-hidden" open>
+                    <summary class="flex justify-between items-center p-3 text-xs font-bold text-slate-200 uppercase tracking-wider cursor-pointer bg-slate-900 hover:bg-slate-850">
+                        <span>1. Portada y Metadatos</span>
+                        <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </summary>
+                    <div class="p-3 space-y-3 bg-slate-950 border-t border-slate-800">
+                        <div>
+                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Título del Informe</label>
+                            <input type="text" id="inp-titulo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-bold" oninput="updateMetadata()">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Subtítulo Descriptivo</label>
+                            <textarea id="inp-subtitulo" rows="2" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium resize-none" oninput="updateMetadata()"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Dirección / Área Origen</label>
+                            <input type="text" id="inp-direccion" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-bold" oninput="updateMetadata()">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Trimestre</label>
+                                <input type="text" id="inp-trimestre" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Año</label>
+                                <input type="text" id="inp-ano" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Encabezado Izq.</label>
+                                <input type="text" id="inp-hdr-left" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Encabezado Der.</label>
+                                <input type="text" id="inp-hdr-right" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Pie de Página</label>
+                            <input type="text" id="inp-ftr-left" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Dirigido A</label>
+                                <input type="text" id="inp-dirigido" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Dirigido</label>
+                                <input type="text" id="inp-dirigido-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Realizado Por</label>
+                                <input type="text" id="inp-autor" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Revisado Por</label>
+                                <input type="text" id="inp-revisado" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Realizador</label>
+                                <input type="text" id="inp-autor-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Revisor</label>
+                                <input type="text" id="inp-revisado-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- EDITORES CON SOPORTE COMPLETO PARA SUBTEMAS DINÁMICOS -->
+                <div id="dynamic-editors-container" class="space-y-4">
+                    <!-- Inyectado dinámicamente vía JS -->
+                </div>
+
+            </div>
+
+            <!-- Footer Informático de la Consola -->
+            <div class="p-3 bg-slate-950 border-t border-slate-800 text-[10px] text-slate-500 text-center">
+                Dirección de TIC - Consejo Nacional de la Persona Envejeciente
+            </div>
+        </div>
+
+        <!-- LADO DERECHO: PREVISUALIZADOR DEL INFORME (PÁGINAS LETTER) -->
+        <div id="document-preview-area" class="flex-1 bg-slate-100 p-6 print:p-0 print:bg-white">
+            <div id="print-area" class="max-w-fit mx-auto print:w-full">
+                
+                <!-- PÁGINA 1: PORTADA OFICIAL (Centrada verticalmente, título en rojo y ola completa) -->
+                <div class="paper-page cover-page">
+                    <!-- Contenedor Superior con Margen para alinear con el resto del documento -->
+                    <!-- Flex-1 y Justify-Center para garantizar centrado matemático en el centro de la página -->
+                    <div class="flex-1 flex flex-col justify-center items-center px-[1.2in] text-center gap-6">
+                        <!-- Logo Oficial Central (Cúpula de CONAPE) -->
+                        <img src="https://www.conape.gob.do/_includes/images/logo1b.png" alt="Logo Oficial CONAPE" class="h-44 object-contain mb-2">
+
+                        <div class="space-y-5">
+                            <!-- Título Principal en Rojo de Alto Impacto (fuente Calibri Light, negrita, tamaño 30) -->
+                            <h1 class="text-conape-red uppercase tracking-wide leading-tight calibri-cover-title" contenteditable="true" id="lbl-cover-main-title">
+                                Consejo Nacional de la Persona Envejeciente (CONAPE)
+                            </h1>
+                            
+                            <!-- Subtítulo de Dirección -->
+                            <h2 class="text-slate-600 tracking-widest uppercase leading-snug calibri-header meta-direccion-span">
+                                Dirección de Tecnologías de la Información y Comunicación
+                            </h2>
+
+                            <!-- Separador Sutil -->
+                            <div class="py-1">
+                                <h3 class="text-slate-950 uppercase leading-snug tracking-normal meta-title-span font-bold" style="font-size: 16px;">
+                                    Informe de Diagnóstico: Estatus Actual NORTIC en CONAPE
+                                </h3>
+                            </div>
+
+                            <!-- Propósito Corto -->
+                            <div class="px-6">
+                                <p class="text-slate-500 tracking-normal meta-subtitulo-span leading-relaxed font-semibold" style="font-size: 11px;">
+                                    DOCUMENTO TÉCNICO: INFORME DE LOS ANÁLISIS Y LISTADO DE LOS PROCEDIMIENTOS ACTUALIZADOS
+                                </p>
+                            </div>
+
+                            <!-- Temporalidad -->
+                            <div class="pt-2">
+                                <p class="text-slate-800 uppercase tracking-widest font-bold" style="font-size: 12px;">
+                                    (<span class="meta-trimestre-span">2do Trimestre</span>) <br>
+                                    <span class="text-slate-900 mt-1 block font-black" style="font-size: 13px;">AÑO <span class="meta-ano-span">2026</span></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Oficial: Panel Azul Marino heráldico de borde a borde y de altura reducida con textos forzados en blanco -->
+                    <div class="w-full mt-auto relative z-10">
+                        <!-- Transición de Ola Reducida en Altura -->
+                        <div class="w-full h-12 -mb-1 relative overflow-hidden pointer-events-none z-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none" class="absolute bottom-0 left-0 w-full h-full">
+                                <path fill="#0d3c6c" d="M0,80 C360,130 720,20 1440,90 L1440,120 L0,120 Z"></path>
+                            </svg>
+                        </div>
+                        
+                        <!-- Bloque Sólido Compacto con Sangría de Margen Interno de 1 pulgada para las firmas -->
+                        <div class="bg-conape-navy text-white px-[1in] pb-6 pt-2 relative z-10 text-left">
+                            <div class="flex justify-between items-end text-[13px]">
+                                <!-- Dirigido A -->
+                                <div class="text-left w-1/2 pr-4 self-end">
+                                    <span class="font-bold tracking-wider text-[10px] uppercase block mb-1" style="color: #93c5fd !important;">Dirigido a:</span>
+                                    <p class="font-black text-white text-[15px] leading-tight" style="color: #ffffff !important;" id="lbl-dirigido-cover">Dr. Demetrio Vicente Ureña</p>
+                                    <p class="text-[12px]" style="color: #ffffff !important;" id="lbl-dirigido-cargo-cover">Director Ejecutivo</p>
+                                </div>
+                                <!-- Autores / Creadores -->
+                                <div class="text-right w-1/2 pl-4 space-y-3 self-end">
+                                    <div>
+                                        <span class="font-bold tracking-wider text-[10px] uppercase block" style="color: #93c5fd !important;">Realizado por:</span>
+                                        <p class="font-black text-white text-[15px]" style="color: #ffffff !important;" id="lbl-autor-cover">Ronniel Aybar V.</p>
+                                        <p class="text-[12px]" style="color: #ffffff !important;" id="lbl-autor-cargo-cover">Administrador de Base de Datos</p>
+                                    </div>
+                                    <div>
+                                        <span class="font-bold tracking-wider text-[10px] uppercase block" style="color: #93c5fd !important;">Revisado por:</span>
+                                        <p class="font-black text-white text-[15px] leading-tight" style="color: #ffffff !important;" id="lbl-revisado-cover">Luis E. María Pichardo</p>
+                                        <p class="text-[12px]" style="color: #ffffff !important;" id="lbl-revisado-cargo-cover">Director de DTIC</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PÁGINA 2: ÍNDICE GENERAL (Optimizado sin numeración propia y sin Portada/Índice) -->
+                <div class="paper-page">
+                    <!-- Encabezado con clase de contenedor estricta -->
+                    <div class="calibri-header-container">
+                        <span class="meta-hdr-left-span">CONAPE - DTIC</span>
+                        <span class="meta-hdr-right-span">Informe Diagnóstico NORTIC</span>
+                    </div>
+
+                    <h2 class="calibri-header text-conape-navy tracking-wider mb-8 uppercase flex items-center gap-3">
+                        <span class="w-1 h-5 bg-conape-red"></span>
+                        Índice de Contenido
+                    </h2>
+
+                    <div id="dynamic-index-container" class="space-y-4 calibri-body text-slate-700 text-left">
+                        <!-- Inyectado dinámicamente -->
+                    </div>
+
+                    <!-- Pie de página con clase de contenedor estricta -->
+                    <div class="calibri-footer-container">
+                        <span class="meta-ftr-left-span">Evaluación de Desempeño ITICGE</span>
+                        <span class="font-bold">Pág. 2</span>
+                    </div>
+                </div>
+
+                <!-- PÁGINAS DINÁMICAS (Secciones editables continuas) -->
+                <div id="dynamic-pages-container">
+                    <!-- Inyectado dinámicamente con sus respectivos encabezados y pies de página absolutos -->
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script JavaScript Maestro para Render Dinámico, JSON binding, LocalStorage y Sidebar -->
+    <script>
+        // Estructura de Datos JSON por defecto con bloques enriquecidos de HTML listo para edición
+        const defaultReportData = {
+            metadata: {
+                titulo: "Informe de Diagnóstico: Estatus Actual NORTIC en CONAPE",
+                subtitulo: "DOCUMENTO TÉCNICO: INFORME DE LOS ANÁLISIS Y LISTADO DE LOS PROCEDIMIENTOS ACTUALIZADOS",
+                trimestre: "2do Trimestre",
+                ano: "2026",
+                hdrLeft: "CONAPE - DTIC",
+                hdrRight: "Informe Diagnóstico NORTIC",
+                ftrLeft: "Evaluación de Desempeño ITICGE",
+                dirigido: "Dr. Demetrio Vicente Ureña",
+                dirigidoCargo: "Director Ejecutivo",
+                autor: "Ronniel Aybar V.",
+                autorCargo: "Administrador de Bases de Datos / Coordinador Técnico DTIC",
+                revisado: "Luis E. María Pichardo",
+                revisadoCargo: "Director de DTIC",
+                direccion: "Dirección de Tecnologías de la Información y Comunicación"
+            },
+            secciones: [
+                {
+                    id: "sec_introduccion",
+                    titulo: "1. Introducción",
+                    pagina: "3",
+                    pageBreakBefore: false,
+                    subtemas: [
+                        {
+                            id: "sub_intro_1",
+                            subtitulo: "Contexto Departamental",
+                            contenido: "<p>El presente informe técnico surge en el marco del cumplimiento de los objetivos departamentales estipulados para la Dirección de Tecnologías de la Información y Comunicación (DTIC) del Consejo Nacional de la Persona Envejeciente (CONAPE). Conforme a la reestructuración interna y los requerimientos transversales dictados por la Oficina Gubernamental de Tecnologías de la Información y Comunicación (OGTIC), se asumió el compromiso institucional de evaluar y diagnosticar el 100% de la documentación técnica y operativa vigente. Este compendio recopila de manera detallada las tareas de análisis, validación de controles y la estructuración del marco normativo respecto al organigrama oficial de la institución.</p>"
+                        }
+                    ]
+                },
+                {
+                    id: "sec_proposito",
+                    titulo: "2. Propósito",
+                    pagina: "3",
+                    pageBreakBefore: false,
+                    subtemas: [
+                        {
+                            id: "sub_prop_1",
+                            subtitulo: "Objetivo de la Auditoría",
+                            contenido: "<p>El objetivo primordial de este informe es documentar formalmente el estado de actualización de los procedimientos operativos, directrices, políticas de seguridad y planes funcionales de la DTIC, catalogándolos de acuerdo con la división específica responsable de su ejecución. Asimismo, busca mapear y visibilizar de manera analítica las brechas normativas actuales para establecer las bases técnicas necesarias para el cumplimiento riguroso de la evaluación ITICGE en el año fiscal {ano}.</p>"
+                        }
+                    ]
+                },
+                {
+                    id: "sec_alcance",
+                    titulo: "3. Alcance",
+                    pagina: "3",
+                    pageBreakBefore: false,
+                    subtemas: [
+                        {
+                            id: "sub_alc_1",
+                            subtitulo: "Divisiones Técnicas Involucradas",
+                            contenido: "<ul class=\"list-decimal pl-5 space-y-1.5\"><li><strong>División de Administración de Servicios de Tecnologías de la Información y Comunicación:</strong> Control de incidencias, SLA y calidad del servicio al usuario.</li><li><strong>División de Operaciones de Tecnologías de la Información y Comunicación:</strong> Redes de voz y datos, infraestructura de servidores locales e híbridos.</li><li><strong>División de Desarrollo e Implementación de Sistemas:</strong> Gestión de portales, aplicativos institucionales y repositorios de bases de datos centrales.</li><li><strong>División de Seguridad y Monitoreo de Tecnologías de la Información y Comunicación:</strong> Ciberseguridad, gestión de identidades y accesos remotos seguros.</li></ul>"
+                        }
+                    ]
+                },
+                {
+                    id: "sec_metodologia",
+                    titulo: "4. Metodología de Diagnóstico",
+                    pagina: "3",
+                    pageBreakBefore: false,
+                    subtemas: [
+                        {
+                            id: "sub_met_1",
+                            subtitulo: "Fases Técnicas de Evaluación",
+                            contenido: "<p><strong>Fase 1: Inventario Detallado por Divisiones</strong><br>Clasificación formal de cada política de seguridad, manual y procedimiento operativo de acuerdo con la división asignada en la estructura de especialidades funcionales de la DTIC.</p><p><strong>Fase 2: Evaluación Formal de Cumplimiento Regulatorio</strong><br>Contraste y evaluación de las versiones técnicas vigentes frente a los lineamientos estipulados por la OGTIC, asegurando la alineación con las normativas gubernamentales NORTIC A2, NORTIC A4, NORTIC A6 y NORTIC E1.</p><p><strong>Fase 3: Mapeo de Brechas (Gap Analysis)</strong><br>Identificación rigurosa de las atribuciones operativas que no disponen de una herramienta procedimental estandarizada, tomando como referencia las directrices de control interno de las Normas Básicas de Control Interno (NOBACI).</p>"
+                        }
+                    ]
+                },
+                {
+                    id: "sec_desarrollo",
+                    titulo: "5. Desarrollo Técnico y Operativo",
+                    pagina: "4",
+                    pageBreakBefore: true,
+                    subtemas: [
+                        {
+                            id: "sub_des_1",
+                            subtitulo: "Estructura Operativa and Mitigaciones",
+                            contenido: "<p>El despliegue de las actividades de revisión técnica se orientó a agrupar rigurosamente las operaciones bajo las especializaciones funcionales vigentes de la dirección. Un hito de particular relevancia dentro del plan de optimización de procesos ha sido la formalización del procedimiento de mantenimiento correctivo y preventivo de los sistemas de información.</p>"
+                        },
+                        {
+                            id: "sub_des_2",
+                            subtitulo: "5.1 Hito correctivo PR-DTIC-07",
+                            contenido: "<p>El procedimiento de mantenimiento de código fuente <strong>PR-DTIC-07</strong> sustituye y deroga de forma definitiva e integral la versión preliminar redactada en el año 2022 bajo la nomenclatura PR-DTIC-03. Bajo este nuevo enfoque metodológico alineado con controles de auditoría estrictos, se ha establecido la delimitación funcional para que el <strong>Analista de Sistemas Informáticos</strong> sea el único responsable de auditar las arquitecturas de software y realizar las pruebas de código correspondientes con una periodicidad anual. Por otra parte, de forma completamente segregada para evitar riesgos de conflictos de interés y proteger el entorno de producción, el <strong>Técnico de Programación</strong> ejecuta las modificaciones y parametrizaciones de código pertinentes de forma aislada.</p>"
+                        },
+                        {
+                            id: "sub_des_3",
+                            subtitulo: "5.2 Control de restricción extra",
+                            contenido: "<p>De forma complementaria, ante el levantamiento de controles de seguridad de información física y lógica, se detectó que no se disponía del formato de procedimiento físico para la Restricción de Usuarios de Red. Para mitigar esta brecha normativa de forma ágil y oportuna sin comprometer la continuidad de las operaciones de fiscalización, se desarrolló y puso en marcha la Política de Gestión de Portales Web (PL-DTIC-02), la cual actúa en la actualidad como un control compensatorio transversal en el área de seguridad.</p>"
+                        }
+                    ]
+                },
+                {
+                    // CORRECCIÓN CRÍTICA DE PAGINACIÓN: Hallazgos (Section 6) ahora tiene pageBreakBefore: true
+                    id: "sec_hallazgos",
+                    titulo: "6. Hallazgos / Resultados por División",
+                    pagina: "5",
+                    pageBreakBefore: true,
+                    subtemas: [
+                        {
+                            id: "sub_hal_1",
+                            subtitulo: "6.1 Administración de Servicios",
+                            contenido: "<ul class=\"list-disc pl-5 space-y-1.5\"><li><strong>Procedimiento de Respaldo y Recuperación de Base de Datos (PR-DOTIC-01):</strong> Norma y regula la ejecución sistemática de salvaguardas de los activos de bases de datos centrales e información del módulo financiero.</li><li><strong>Procedimiento y Política de Adquisición, Desarrollo o Modificación de Sistemas (PR-DTIC-06):</strong> Establece las directrices y fases para la solicitud, diseño técnico y adquisición formal de herramientas informáticas institucionales.</li><li><span class=\"text-slate-950 font-bold\">Nota de Alerta - Procedimiento de Solicitud y Uso de Activos TIC:</span> Funcionalmente asignado a esta división. No obstante, mediante notificación escrita de Yisairis Valerio (Analista de Calidad), se certificó que el archivo documental físico no se encuentra disponible actualmente en los registros de Control de Calidad.</li></ul>"
+                        },
+                        {
+                            id: "sub_hal_2",
+                            subtitulo: "6.2 Operaciones TIC",
+                            contenido: "<ul class=\"list-disc pl-5 space-y-1.5\"><li><strong>Procedimiento de la Segmentación de la Red de Datos:</strong> Documento de ingeniería de redes que especifica el direccionamiento lógico, políticas de enrutamiento y seguridad perimetral de red en las dependencias.</li><li><strong>Plan de Seguridad Física y Tecnológica (P-DTIC-01):</strong> Documento estratégico de contingencia que norma el control biométrico de acceso al Data Center central, climatización y respaldo de alimentación eléctrica.</li></ul>"
+                        },
+                        {
+                            id: "sub_hal_3",
+                            subtitulo: "6.3 Desarrollo e Implementación",
+                            contenido: "<ul class=\"list-disc pl-5 space-y-1.5\"><li><strong>Procedimiento de Mantenimiento, Actualización and Optimización de los Sistemas (PR-DTIC-07):</strong> Dicta las fases de revisión anual de código fuente, optimización de base de datos y parches ante ataques SQL injection.</li><li><strong>Procedimiento de Adquisición de Sistemas (PR-DTIC-06):</strong> (Compartido funcionalmente con la división de administración de servicio).</li><li><strong>Política de Gestión de Portales Web (PL-DTIC-02):</strong> Estipula el uso y adecuación visual conforme al Sistema de Diseño Dominicano de la Oficina Presidencial de Tecnologías de la Información.</li></ul>"
+                        },
+                        {
+                            id: "sub_hal_4",
+                            subtitulo: "6.4 Seguridad y Monitoreo",
+                            contenido: "<ul class=\"list-disc pl-5 space-y-1.5\"><li><strong>Políticas de Monitoreo y Gestión de Base de Datos (PL-DOTIC-01):</strong> Alineada directamente con la directriz de seguridad NORTIC A6, estableciendo controles de cifrado TLS para accesos locales and remotos.</li><li><strong>Procedimiento de Reporte al Centro Nacional de Ciberseguridad (PR-DTIC-02):</strong> Define el flujo para la identificación de amenazas de seguridad interna y la vía de escalamiento oficial al CSIRT-RD del MINPRE.</li><li><strong>Procedimiento de Restricción de Usuario:</strong> Funcionalmente requerido. Actualmente mitigado de forma provisional por la Política de Portales Web (PL-DTIC-02).</li></ul>"
+                        }
+                    ]
+                },
+                {
+                    id: "sec_analisis",
+                    titulo: "7. Análisis de Impacto Institucional",
+                    pagina: "6",
+                    pageBreakBefore: true,
+                    subtemas: [
+                        {
+                            id: "sub_ana_1",
+                            subtitulo: "Mitigaciones and Control de Brechas",
+                            contenido: "<p><strong>9.1 Mitigación de Riesgos Operativos y Documentales</strong><br>La carencia sistemática de procedimientos técnicos escritos enfocados en tareas críticas (como Mantenimiento Preventivo de Servidores y Gobernanza del Data Center) sitúa a la infraestructura tecnológica de CONAPE en una condición de alta vulnerabilidad. El impacto directo ante un fallo físico en un servidor local se traduce en un incremento en los tiempos de respuesta y recuperación operativa de los aplicativos misionales que prestan servicios al ciudadano de la tercera edad. Para subsanar esta debilidad de control, la elaboración sistemática del marco de recuperación técnica (RPO/RTO) es imperativa bajo los estándares dictados por la Contraloría General de la República en las normas NOBACI.</p><p><strong>9.2 Automatización de Políticas de Baja y Estatus de Usuarios</strong><br>Basándose en los hallazgos señalados durante las mesas de trabajo de la auditoría de control interno, el Plan de Seguridad Física y Tecnológica (P-DTIC-01) requiere una actualización inmediata de contenido. Se debe incluir de manera explícita el flujo para la inhabilitación temporal de accesos a directorios activos corporativos para empleados en periodos de licencia laboral o vacaciones estacionales, así como un mecanismo automatizado de cruce de información con el departamento de Recursos Humanos de CONAPE para bloquear de manera inmediata las identidades de personal desvinculado, anulando riesgos de fugas involuntarias de información sensible.</p><p><strong>9.3 Cumplimiento Integral de Indicadores NORTIC E1</strong><br>El proceso de auditoría externa y seguimiento liderado por la OGTIC respecto al cumplimiento del indicador de uso de herramientas digitales (ITICGE) establece la urgencia de formalizar la Política de Gestión de Contraseñas para Redes Sociales de CONAPE. Este documento técnico e institucional proverá el marco regulatorio para asegurar el correcto manejo de accesos web delegados al departamento de Comunicaciones de la institución, exigiendo la segregación técnica de los roles operativos oficiales en la administración del portal (Curador, Moderador y Analista de Contenido) según el catálogo general de cargos.</p>"
+                        }
+                    ]
+                },
+                {
+                    // CORRECCIÓN CRÍTICA DE PAGINACIÓN: Recomendaciones (Section 8) ahora tiene pageBreakBefore: true
+                    id: "sec_recomendaciones",
+                    titulo: "8. Recomendaciones Clave",
+                    pagina: "7",
+                    pageBreakBefore: true,
+                    subtemas: [
+                        {
+                            id: "sub_rec_1",
+                            subtitulo: "Acciones Correctivas Inmediatas",
+                            contenido: "<p><strong>10.1 Consolidación Normativa de Interoperabilidad (NORTIC A4:2024)</strong><br>Acoger las directrices sugeridas por el Departamento de Desarrollo Institucional, procediendo a unificar en un único manual formal y simplificado la Política de Clasificación de Información Sensible, la de Evaluación de Competencias de Personal Técnico y la de Desarrollo de Protocolos de Interoperabilidad, basándose de manera rigurosa en la actualización del marco estándar de la norma NORTIC A4 para optimizar los trámites documentales.</p><p><strong>10.2 Migración de Procesos de Firma Electrónica Obligatoria</strong><br>Establecer el uso obligatorio de los certificados electrónicos gubernamentales provistos por la plataforma nacional Firma GOB y el software de validación de identidad Viafirma Fortress en el ciclo formal de aprobación de los procedimientos en fase de creación. Se debe capitalizar el avance del 67.3% en la habilitación de firmas digitales oficiales con las que disponen en la actualidad las autoridades de área y responsables de departamentos de CONAPE.</p><p><strong>10.3 Estandarización de Formato y Resguardo de Evidencias Técnicas</strong><br>Establecer de forma transversal e ineludible que el 100% de la documentación, planes y parches técnicos evaluados en este análisis sean resguardados formalmente en los repositorios virtuales autorizados de la DTIC. Las cargas de evidencias operativas para auditorías se deberán efectuar únicamente en formato PDF nativo digitalizado original, garantizando que incluyan los metadatos de validación de firma intactos y las firmas institucionales de las áreas involucradas.</p>"
+                        }
+                    ]
+                },
+                {
+                    id: "sec_conclusion",
+                    titulo: "9. Conclusión y Validación Oficial",
+                    pagina: "7",
+                    pageBreakBefore: false,
+                    subtemas: [
+                        {
+                            id: "sub_con_1",
+                            subtitulo: "Resumen Final de Auditoría",
+                            contenido: "<p>El diagnóstico técnico realizado sobre el compendio documental de la Dirección de Tecnologías de la Información y Comunicación (DTIC) revela un avance favorable y sólido en los marcos de mantenimiento de bases de datos y desarrollo informático. Sin embargo, para salvaguardar de manera integral la seguridad informática, la resiliencia tecnológica institucional y alcanzar el puntaje máximo exigido en el indicador ITICGE, es de vital urgencia priorizar la aprobación formal del bloque de seis procedimientos identificados con brechas técnicas. La formalización del presente diagnóstico servirá como hoja de ruta estratégica para planificar las iniciativas de transformación digital gubernamental durante el periodo fiscal {ano}.</p>"
+                        }
+                    ]
+                },
+                {
+                    id: "sec_glosario",
+                    titulo: "10. Glosario de Términos",
+                    pagina: "8",
+                    pageBreakBefore: true,
+                    subtemas: [
+                        {
+                            id: "sub_glo_1",
+                            subtitulo: "Definiciones Técnicas",
+                            contenido: "<dt><strong>CSIRT-RD</strong></dt><dd>Equipo de Respuesta a Incidentes de Ciberseguridad del Centro Nacional de Ciberseguridad de la República Dominicana, encargado de mitigar amenazas complejas en el ecosistema informático del Estado.</dd><dt><strong>Data Center (Centro de Datos)</strong></dt><dd>Espacio de control ambientalmente regulado que contiene la infraestructura de almacenamiento físico de datos, hipervisores y servidores de producción críticos de CONAPE.</dd><dt><strong>ITICGE</strong></dt><dd>Índice de Uso de Tecnologías de la Información y Comunicación e Implementación de Gobierno Electrónico, parámetro de evaluación nacional que fiscaliza los niveles de madurez tecnológica de las instituciones públicas dominicanas.</dd><dt><strong>NOBACI</strong></dt><dd>Normas Básicas de Control Interno aplicadas al sector público por la Contraloría General de la República, diseñadas para regular el cumplimiento, la transparencia y la mitigación de fallos operativos en el marco público.</dd><dt><strong>NORTIC</strong></dt><dd>Conjunto de directrices y reglamentos sobre el uso e implementación de soluciones en Tecnologías de la Información y Comunicación en el sector estatal, regulados y evaluados por la OGTIC.</dd>"
+                        }
+                    ]
+                },
+                {
+                    id: "sec_anexos",
+                    titulo: "11. Anexos Numerados",
+                    pagina: "8",
+                    pageBreakBefore: false,
+                    subtemas: [
+                        {
+                            id: "sub_ane_1",
+                            subtitulo: "Evidencias Operativas",
+                            contenido: "<ol class=\"space-y-4 pl-4 list-decimal\"><li><strong class=\"uppercase block mb-1\">Anexo 1: Documentación del PR-DTIC-07</strong>Procedimiento de Mantenimiento, Actualización y Optimización de los Sistemas de CONAPE que reemplaza formalmente el anterior borrador técnico PR-DTIC-03.</li><li><strong class=\"uppercase block mb-1\">Anexo 2: Documentación del PR-DOTIC-01</strong>Flujos técnicos de aseguramiento y programación de Respaldos de Bases de Datos institucionales del servidor de producción.</li><li><strong class=\"uppercase block mb-1\">Anexo 3: Formato Digital del PL-DOTIC-01</strong>Directrices y manual de políticas de Monitoreo y Gestión del entorno físico y lógico de bases de datos críticas.</li><li><strong class=\"uppercase block mb-1\">Anexo 4: Borrador del Marco de Interoperabilidad (MNI)</strong>Documento normativo preliminar unificado bajo las exigencias de interoperabilidad del estándar NORTIC A4:2024.</li></ol>"
+                        }
+                    ]
+                }
+            ],
+            extraSec_faltantes: {
+                id: "sec_faltantes",
+                titulo: "12. Propuestas de Procedimientos Faltantes",
+                pagina: "9",
+                pageBreakBefore: true,
+                subtemas: [
+                    {
+                        id: "sub_fal_ext",
+                        subtitulo: "Objetivos y Alcances Sugeridos",
+                        contenido: "<div><strong class=\"block uppercase tracking-wider mb-0.5\">12.1 PR-DTIC-08: Gestión de Solicitud y Adquisición de Activos TIC</strong><p class=\"pl-4\"><span class=\"font-semibold\">Objetivo:</span> Regular el ciclo técnico administrativo para el diseño de especificaciones, evaluación técnica de compra y conformidad de hardware corporativo.</p><p class=\"pl-4 mb-4\"><span class=\"font-semibold\">Alcance:</span> Todo activo de tecnología adquirido para la institución por vía del departamento de compras.</p></div><div><strong class=\"block uppercase tracking-wider mb-0.5\">12.2 PR-DTIC-09: Soporte de Servicios TIC y Mantenimiento de Hardware</strong><p class=\"pl-4\"><span class=\"font-semibold\">Objetivo:</span> Brindar respuesta, categorización y solución de incidencias informáticas locales y remotas de forma homogénea.</p><p class=\"pl-4 mb-4\"><span class=\"font-semibold\">Alcance:</span> Todos los servidores, computadoras locales y redes provistas al personal interno o colaboradores externos.</p></div><div><strong class=\"block uppercase tracking-wider mb-0.5\">12.3 PR-DTIC-10: Auditoría y Evaluación Técnica del Data Center</strong><p class=\"pl-4\"><span class=\"font-semibold\">Objetivo:</span> Garantizar la disponibilidad ininterrumpida de los servidores monitoreando los sistemas físicos y redundancias eléctricas.</p><p class=\"pl-4 mb-4\"><span class=\"font-semibold\">Alcance:</span> Todo elemento físico o lógico que resida dentro del perímetro del cuarto de servidores principal.</p></div><div><strong class=\"block uppercase tracking-wider mb-0.5\">12.4 PR-DTIC-11: Procedimiento Estandarizado de Restauración de Servidores</strong><p class=\"pl-4\"><span class=\"font-semibold\">Objetivo:</span> Normar los pasos exactos para recuperar y levantar aplicativos e hipervisores críticos de bases de datos tras fallos lógicos graves.</p><p class=\"pl-4 mb-4\"><span class=\"font-semibold\">Alcance:</span> Servicios alojados en ambientes locales y en nubes gubernamentales privadas asociadas.</p></div><div><strong class=\"block uppercase tracking-wider mb-0.5\">12.5 PR-DTIC-12: Elaboración de Diagnósticos e Informes Técnicos</strong><p class=\"pl-4\"><span class=\"font-semibold\">Objetivo:</span> Estandarizar la estructura gráfica, estilo académico formal, fuentes y flujos de revisión aplicados en la redacción de informes técnicos.</p><p class=\"pl-4 mb-4\"><span class=\"font-semibold\">Alcance:</span> Todo analyst, consultor o coordinator perteneciente de manera orgánica al departamento DTIC.</p></div><div><strong class=\"block uppercase tracking-wider mb-0.5\">12.6 PR-DTIC-13: Políticas de Acceso y Restricción a Información Confidencial</strong><p class=\"pl-4\"><span class=\"font-semibold\">Objetivo:</span> Blindar y clasificar los niveles de acceso de usuarios de red a las bases de datos sensibles que contienen registros de envejecientes.</p><p class=\"pl-4 mb-4\"><span class=\"font-semibold\">Alcance:</span> Toda dependencia y personal que interactúe de forma directa o indirecta con sistemas de gestión de datos públicos.</p></div>"
+                    }
+                ]
+            }
+        };
+
+        const FIXED_TITLES = {
+            "sec_introduccion": "1. Introducción",
+            "sec_proposito": "2. Propósito",
+            "sec_alcance": "3. Alcance",
+            "sec_metodologia": "4. Metodología de Diagnóstico",
+            "sec_desarrollo": "5. Desarrollo Técnico y Operativo",
+            "sec_hallazgos": "6. Hallazgos / Resultados por División",
+            "sec_analisis": "7. Análisis de Impacto Institucional",
+            "sec_recomendaciones": "8. Recomendaciones Clave",
+            "sec_conclusion": "9. Conclusión y Validación Oficial",
+            "sec_glosario": "10. Glosario de Términos",
+            "sec_anexos": "11. Anexos Numerados",
+            "sec_faltantes": "12. Propuestas de Procedimientos Faltantes"
+        };
+
+        function normalizeReportData() {
+            if (!reportData) return;
+            if (!reportData.metadata) reportData.metadata = {};
+            
+            // Normalizar metadatos para asegurar que existan todos los campos predeterminados y evitar fallos de renderizado
+            const meta = reportData.metadata;
+            const defMeta = defaultReportData.metadata;
+            for (const key in defMeta) {
+                if (meta[key] === undefined || meta[key] === null) {
+                    meta[key] = defMeta[key];
+                }
+            }
+
+            if (!Array.isArray(reportData.secciones)) reportData.secciones = [];
+
+            const defaultIds = [
+                "sec_introduccion", "sec_proposito", "sec_alcance", "sec_metodologia",
+                "sec_desarrollo", "sec_hallazgos", "sec_analisis", "sec_recomendaciones",
+                "sec_conclusion", "sec_glosario", "sec_anexos"
+            ];
+
+            const normalizedSecciones = [];
+            defaultIds.forEach(id => {
+                let existingSec = reportData.secciones.find(s => s.id === id);
+                if (!existingSec) {
+                    const defSec = defaultReportData.secciones.find(s => s.id === id);
+                    if (defSec) {
+                        existingSec = JSON.parse(JSON.stringify(defSec));
+                    }
+                }
+                if (existingSec) {
+                    existingSec.titulo = FIXED_TITLES[id];
+                    normalizedSecciones.push(existingSec);
+                }
+            });
+
+            let hasFaltantes = reportData.secciones.some(s => s.id === "sec_faltantes");
+            if (hasFaltantes) {
+                let existingFaltantes = reportData.secciones.find(s => s.id === "sec_faltantes");
+                if (!existingFaltantes) {
+                    existingFaltantes = JSON.parse(JSON.stringify(defaultReportData.extraSec_faltantes));
+                }
+                existingFaltantes.titulo = FIXED_TITLES["sec_faltantes"];
+                normalizedSecciones.push(existingFaltantes);
+            }
+
+            reportData.secciones = normalizedSecciones;
+        }
+
+        // Recuperar del LocalStorage o usar la plantilla por defecto
+        let reportData = JSON.parse(localStorage.getItem('conape_report_data')) || JSON.parse(JSON.stringify(defaultReportData));
+        normalizeReportData();
+
+        function formatBox(btn, cmd, val = null) {
+            document.execCommand(cmd, false, val);
+            saveToLocalStorage();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('conape_report_data', JSON.stringify(reportData));
+        }
+
+        // Limpia el informe técnico dejando el esqueleto vacío listo para empezar desde cero
+        function clearDocument() {
+            if (confirm("¿Estás seguro de que deseas borrar toda la información y empezar desde cero? Se mantendrán únicamente los títulos vacíos.")) {
+                reportData.metadata = {
+                    titulo: "[Sin Título]",
+                    subtitulo: "[Subtítulo Descriptivo]",
+                    trimestre: "[Trimestre]",
+                    ano: "2026",
+                    hdrLeft: "CONAPE - DTIC",
+                    hdrRight: "Informe Técnico",
+                    ftrLeft: "Evaluación de Desempeño",
+                    dirigido: "",
+                    dirigidoCargo: "",
+                    autor: "",
+                    autorCargo: "",
+                    revisado: "",
+                    revisadoCargo: "",
+                    direccion: "Dirección / Departamento de Tecnología"
+                };
+                
+                // Limpiar contenido y subtítulos de las 11 secciones oficiales
+                reportData.secciones = defaultReportData.secciones.map(sec => {
+                    const cleanSec = JSON.parse(JSON.stringify(sec));
+                    cleanSec.subtemas.forEach(sub => {
+                        sub.subtitulo = "[Escribe el subtítulo aquí]";
+                        sub.contenido = "<p>[Escribe el contenido aquí]</p>";
+                    });
+                    return cleanSec;
+                });
+                
+                // Excluir sección de faltantes al limpiar
+                const btn = document.getElementById('btn-faltantes');
+                if (btn) {
+                    btn.innerHTML = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <span class="text-[9px] uppercase font-bold tracking-wider">Incluir Sec 12</span>`;
+                }
+
+                saveToLocalStorage();
+                updateInputsFromMetadata();
+                renderSidebarAndPages();
+            }
+        }
+
+        // AGREGAR NUEVAS SECCIONES EN TIEMPO REAL
+        function addNewSection() {
+            const nextIndex = reportData.secciones.length + 1;
+            const newSec = {
+                id: `sec_nueva_${Date.now()}`,
+                titulo: `${nextIndex}. Nueva Sección`,
+                pagina: "3",
+                pageBreakBefore: false,
+                subtemas: [
+                    {
+                        id: `sub_nueva_1_${Date.now()}`,
+                        subtitulo: "Subtítulo de Ejemplo",
+                        contenido: "<p>Escribe el contenido de tu nuevo subtema o sección aquí.</p>"
+                    }
+                ]
+            };
+            reportData.secciones.push(newSec);
+            saveToLocalStorage();
+            renderSidebarAndPages();
+        }
+
+        // AGREGAR SUBTEMAS DINÁMICAMENTE A UNA SECCIÓN
+        function addSubtemaToSection(secId) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (!sec) return;
+            const newSub = {
+                id: `sub_nuevo_${Date.now()}`,
+                subtitulo: "Nuevo Subtema",
+                contenido: "<p>Contenido editable del nuevo subtema.</p>"
+            };
+            sec.subtemas.push(newSub);
+            saveToLocalStorage();
+            renderSidebarAndPages();
+        }
+
+        // ELIMINAR SUBTEMAS
+        function deleteSubtema(secId, subId) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (!sec) return;
+            if (sec.subtemas.length <= 1) {
+                alert("Cada sección debe tener al menos un subtema.");
+                return;
+            }
+            sec.subtemas = sec.subtemas.filter(s => s.id !== subId);
+            saveToLocalStorage();
+            renderSidebarAndPages();
+        }
+
+        // ELIMINAR SECCIÓN COMPLETAMENTE
+        function deleteSection(secId) {
+            if (confirm("¿Estás seguro de que deseas eliminar esta sección completa con todos sus subtemas?")) {
+                reportData.secciones = reportData.secciones.filter(s => s.id !== secId);
+                // Renumerar títulos para mantener concordancia
+                reportData.secciones.forEach((sec, idx) => {
+                    const cleanTitle = sec.titulo.replace(/^\d+\.\s*/, '');
+                    sec.titulo = `${idx + 1}. ${cleanTitle}`;
+                });
+                saveToLocalStorage();
+                renderSidebarAndPages();
+            }
+        }
+
+        function exportToDocx() {
+            // Obtenemos el HTML renderizado de los previsualizadores de páginas
+            const content = document.getElementById('print-area').innerHTML;
+            
+            // Hojas de estilo heredadas y mapeadas a Office XML para simular el look Calibri exacto de CONAPE
+            const styles = `
+                <style>
+                    @page {
+                        size: 8.5in 11in;
+                        margin: 1in;
+                    }
+                    body {
+                        font-family: "Calibri Light", "Calibri", sans-serif;
+                        font-size: 11pt;
+                        line-height: 1.15;
+                        color: #000000;
+                    }
+                    h1 {
+                        font-size: 24pt;
+                        font-weight: bold;
+                        color: #000000;
+                        text-align: center;
+                        margin-bottom: 12pt;
+                    }
+                    h1.conape-title {
+                        color: #da291c;
+                    }
+                    h2 {
+                        font-size: 14pt;
+                        font-weight: bold;
+                        color: #0d3c6c;
+                        margin-top: 18pt;
+                        margin-bottom: 6pt;
+                        border-bottom: 1px solid #0d3c6c;
+                        padding-bottom: 3pt;
+                    }
+                    h3, h4 {
+                        font-size: 11pt;
+                        font-weight: bold;
+                        color: #333333;
+                        margin-top: 12pt;
+                    }
+                    p, li {
+                        font-size: 11pt;
+                        line-height: 1.15;
+                        margin-bottom: 1.15em;
+                        text-align: justify;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 12pt;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #cbd5e1;
+                        padding: 6pt;
+                        font-size: 10.5pt;
+                    }
+                    th {
+                        border-bottom: 2px solid #0f172a;
+                        font-weight: bold;
+                        color: #0f172a;
+                    }
+                    .cover-page {
+                        page-break-after: always;
+                    }
+                    .paper-page {
+                        page-break-after: always;
+                    }
+                    .print\\:hidden { display: none !important; }
+                </style>
+            `;
+            
+            // Estructura XML para empaquetar el HTML en un documento que Ms Word abre de forma nativa
+            const htmlDoc = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                      xmlns:w="urn:schemas-microsoft-com:office:word" 
+                      xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="utf-8">
+                    <title>${reportData.metadata.titulo}</title>
+                    ${styles}
+                </head>
+                <body>
+                    ${content}
+                </body>
+                </html>
+            `;
+            
+            // Descarga del archivo usando un blob compatible
+            const blob = new Blob(['\ufeff' + htmlDoc], {
+                type: 'application/msword'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${reportData.metadata.titulo.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.doc`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadTemplateJSON() {
+            try {
+                const blob = new Blob([JSON.stringify(reportData, null, 2)], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${reportData.metadata.titulo.toLowerCase().replace(/[^a-z0-9]+/g, '_')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert("Error al exportar JSON: " + error.message);
+            }
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData && importedData.metadata && importedData.secciones) {
+                        reportData = importedData;
+                        normalizeReportData();
+                        saveToLocalStorage();
+                        updateInputsFromMetadata();
+                        renderSidebarAndPages();
+                        alert("JSON cargado y validado exitosamente.");
+                    } else {
+                        alert("El archivo JSON no tiene el formato correcto.");
+                    }
+                } catch (error) {
+                    alert("Error al procesar el archivo JSON: " + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Sincroniza desde el editor lateral de la izquierda al previsualizador del papel a la derecha
+        function syncFromEditor(secId, subId, htmlContent) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (!sec) return;
+            const sub = sec.subtemas.find(s => s.id === subId);
+            if (!sub) return;
+            sub.contenido = htmlContent;
+            
+            const previewEl = document.getElementById(`preview-${secId}-${subId}`);
+            if (previewEl) {
+                previewEl.innerHTML = htmlContent;
+            }
+            saveToLocalStorage();
+        }
+
+        // Sincroniza desde el previsualizador del papel a la derecha de vuelta al editor lateral izquierdo
+        function syncFromPreview(secId, subId, htmlContent) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (!sec) return;
+            const sub = sec.subtemas.find(s => s.id === subId);
+            if (!sub) return;
+            sub.contenido = htmlContent;
+
+            const editorEl = document.getElementById(`editor-${secId}-${subId}`);
+            if (editorEl) {
+                editorEl.innerHTML = htmlContent;
+            }
+            saveToLocalStorage();
+        }
+
+        function renderSidebarAndPages() {
+            normalizeReportData();
+            // Renderizar Metadatos Básicos
+            const meta = reportData.metadata;
+            document.querySelectorAll('.meta-title-span').forEach(el => el.innerHTML = meta.titulo);
+            document.querySelectorAll('.meta-subtitulo-span').forEach(el => el.innerHTML = meta.subtitulo);
+            document.querySelectorAll('.meta-trimestre-span').forEach(el => el.innerText = meta.trimestre);
+            document.querySelectorAll('.meta-ano-span').forEach(el => el.innerText = meta.ano);
+            document.querySelectorAll('.meta-hdr-left-span').forEach(el => el.innerText = meta.hdrLeft);
+            document.querySelectorAll('.meta-hdr-right-span').forEach(el => el.innerText = meta.hdrRight);
+            document.querySelectorAll('.meta-ftr-left-span').forEach(el => el.innerText = meta.ftrLeft);
+            document.querySelectorAll('.meta-direccion-span').forEach(el => el.innerText = meta.direccion);
+
+            // Firmas y responsables de portada (Control defensivo de nulos con ID correcto)
+            const lblDirigidoCover = document.getElementById('lbl-dirigido-cover');
+            if (lblDirigidoCover) lblDirigidoCover.innerText = meta.dirigido;
+
+            const lblDirigidoCargoCover = document.getElementById('lbl-dirigido-cargo-cover');
+            if (lblDirigidoCargoCover) lblDirigidoCargoCover.innerText = meta.dirigidoCargo;
+
+            const lblAutorCover = document.getElementById('lbl-autor-cover');
+            if (lblAutorCover) lblAutorCover.innerText = meta.autor;
+
+            const lblRevisadoCover = document.getElementById('lbl-revisado-cover');
+            if (lblRevisadoCover) lblRevisadoCover.innerText = meta.revisado;
+
+            const lblRevisadoCargoCover = document.getElementById('lbl-revisado-cargo-cover');
+            if (lblRevisadoCargoCover) lblRevisadoCargoCover.innerText = meta.revisadoCargo;
+
+            const lblAutorCargoCover = document.getElementById('lbl-autor-cargo-cover');
+            if (lblAutorCargoCover) lblAutorCargoCover.innerText = meta.autorCargo || "Administrador de Base de Datos";
+
+            // Firmas formales finales (Control defensivo de nulos)
+            const lblAutorFirma = document.getElementById('lbl-autor-firma');
+            if (lblAutorFirma) lblAutorFirma.innerText = meta.autor;
+
+            const lblRevisadoFirma = document.getElementById('lbl-revisado-firma');
+            if (lblRevisadoFirma) lblRevisadoFirma.innerText = meta.revisado;
+
+            const lblRevisadoCargoFirma = document.getElementById('lbl-revisado-cargo-firma');
+            if (lblRevisadoCargoFirma) lblRevisadoCargoFirma.innerText = meta.revisadoCargo;
+
+            // 1. RENDERIZAR ÍNDICE DINÁMICO (Removido Portada e Índice de la lista)
+            const indexContainer = document.getElementById('dynamic-index-container');
+            if (indexContainer) {
+                indexContainer.innerHTML = '';
+                reportData.secciones.forEach(sec => {
+                    const indexLine = document.createElement('div');
+                    indexLine.className = "index-line";
+                    indexLine.innerHTML = `
+                        <span class="index-title font-medium">${sec.titulo}</span>
+                        <span class="index-number">${sec.pagina}</span>
+                    `;
+                    indexContainer.appendChild(indexLine);
+                });
+            }
+
+            // 2. RENDERIZAR EDITORES DE LA CONSOLA DE EDICIÓN IZQUIERDA
+            const editorsContainer = document.getElementById('dynamic-editors-container');
+            if (editorsContainer) {
+                editorsContainer.innerHTML = '';
+
+                reportData.secciones.forEach((sec, sIdx) => {
+                    const details = document.createElement('details');
+                    details.className = "group bg-slate-950 rounded border border-slate-800 overflow-hidden";
+                    
+                    let subtemasHTML = '';
+                    sec.subtemas.forEach((sub, subIdx) => {
+                        subtemasHTML += `
+                            <div class="p-3 bg-slate-900 border border-slate-800 rounded space-y-2 mt-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Subtema ${subIdx + 1}</span>
+                                    <button onclick="deleteSubtema('${sec.id}', '${sub.id}')" class="text-red-500 hover:text-red-400 text-[10px] font-bold uppercase tracking-wider">Eliminar</button>
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Título del Subtema</label>
+                                    <input type="text" value="${sub.subtitulo}" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs text-slate-955 font-bold" 
+                                        oninput="updateSubtemaTitle('${sec.id}', '${sub.id}', this.value)">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Cuerpo de Contenido</label>
+                                    <div class="bg-slate-100 border border-slate-300 rounded p-1 flex gap-1 mb-1 items-center">
+                                        <button onmousedown="event.preventDefault(); formatBox(this, 'bold')" class="hover:bg-slate-200 text-slate-955 font-bold px-1.5 py-0.5 rounded text-[9px] border border-slate-300" type="button">N</button>
+                                        <button onmousedown="event.preventDefault(); formatBox(this, 'italic')" class="hover:bg-slate-200 text-slate-955 italic px-1.5 py-0.5 rounded text-[9px] border border-slate-300" type="button">K</button>
+                                        <span class="w-[1px] h-3 bg-slate-300 mx-1"></span>
+                                        <button onmousedown="event.preventDefault(); formatBox(this, 'insertUnorderedList')" class="hover:bg-slate-200 text-slate-955 px-1 py-0.5 rounded text-[9px] border border-slate-300" type="button">•=</button>
+                                    </div>
+                                    <div contenteditable="true" id="editor-${sec.id}-${sub.id}" class="p-2 text-xs text-slate-955 bg-white min-h-[100px] border border-slate-300 rounded focus:outline-none" 
+                                        oninput="syncFromEditor('${sec.id}', '${sub.id}', this.innerHTML)">${sub.contenido}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    details.innerHTML = `
+                        <summary class="flex justify-between items-center p-3 text-xs font-bold text-slate-200 uppercase tracking-wider cursor-pointer bg-slate-900 hover:bg-slate-850">
+                            <span>${sec.titulo}</span>
+                            <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </summary>
+                        <div class="p-3 bg-slate-950 border-t border-slate-800 space-y-3">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Página en Índice</label>
+                                    <input type="text" value="${sec.pagina}" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1 focus:outline-none text-xs text-slate-955 font-bold text-center" 
+                                        oninput="updateSectionPage('${sec.id}', this.value)">
+                                </div>
+                                <div class="flex items-center justify-center gap-2 pt-4">
+                                    <input type="checkbox" id="break-${sec.id}" ${sec.pageBreakBefore ? 'checked' : ''} onchange="updateSectionBreak('${sec.id}', this.checked)" class="w-4 h-4 rounded text-conape-navy">
+                                    <label for="break-${sec.id}" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider cursor-pointer">Salto de página</label>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-slate-800 pt-2 space-y-1">
+                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Subtemas de la Sección</span>
+                                ${subtemasHTML}
+                            </div>
+
+                            <div class="pt-2">
+                                <button onclick="addSubtemaToSection('${sec.id}')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 px-2 rounded text-[10px] transition flex items-center justify-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    Añadir Subtema
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    editorsContainer.appendChild(details);
+                });
+            }
+
+            // 3. RENDERIZAR PÁGINAS PREVIEW DINÁMICAS (LADO DERECHO)
+            const pagesContainer = document.getElementById('dynamic-pages-container');
+            if (pagesContainer) {
+                pagesContainer.innerHTML = '';
+
+                // Renderizar secciones dinámicas consolidadas en páginas físicas Letter
+                // Agrupamos las secciones basándonos en si fuerzan salto de página o no para simular papel
+                let currentPageDiv = createNewPaperPage();
+                pagesContainer.appendChild(currentPageDiv);
+
+                reportData.secciones.forEach(sec => {
+                    if (sec.pageBreakBefore) {
+                        currentPageDiv = createNewPaperPage();
+                        pagesContainer.appendChild(currentPageDiv);
+                    }
+
+                    const sectionHTML = document.createElement('section');
+                    sectionHTML.className = "mb-4";
+                    
+                    let subtemasContent = '';
+                    sec.subtemas.forEach(sub => {
+                        const subtitleHTML = sub.subtitulo ? `<h3 class="calibri-content-title text-slate-800 uppercase tracking-widest pt-2">${sub.subtitulo}</h3>` : '';
+                        subtemasContent += `
+                            <div class="mt-2">
+                                ${subtitleHTML}
+                                <div id="preview-${sec.id}-${sub.id}" class="calibri-body text-slate-700 text-justify" contenteditable="true" oninput="syncFromPreview('${sec.id}', '${sub.id}', this.innerHTML)">
+                                    ${sub.contenido}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    let signatureHTML = '';
+                    if (sec.id === 'sec_conclusion') {
+                        signatureHTML = `
+                            <div id="conclusions-firma-block" class="pt-8 calibri-body">
+                                <p class="text-[11px] font-bold text-slate-900 uppercase tracking-wider text-center mb-2">Validan formalmente la veracidad técnica del informe:</p>
+                                <div class="grid grid-cols-2 gap-10 mt-6">
+                                    <div class="text-center flex flex-col justify-end min-h-[180px] border-b border-transparent pb-2">
+                                        <div class="border-t border-slate-400 mx-auto w-52 pt-3">
+                                            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Realizado por:</p>
+                                            <p class="text-xs font-extrabold text-slate-900">${reportData.metadata.autor}</p>
+                                            <p class="text-[10px] text-slate-500 leading-tight">${reportData.metadata.autorCargo || 'Administrador de Base de Datos'}</p>
+                                            <p class="text-[9px] text-conape-navy font-bold uppercase mt-1">CONAPE DTIC</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-center flex flex-col justify-end min-h-[180px] border-b border-transparent pb-2">
+                                        <div class="border-t border-slate-400 mx-auto w-52 pt-3">
+                                            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Revisado por:</p>
+                                            <p class="text-xs font-extrabold text-slate-900">${reportData.metadata.revisado}</p>
+                                            <p class="text-[10px] text-slate-500 leading-tight">${reportData.metadata.revisadoCargo || 'Director de DTIC'}</p>
+                                            <p class="text-[9px] text-conape-navy font-bold uppercase mt-1">CONAPE DTIC</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    sectionHTML.innerHTML = `
+                        <h2 class="calibri-header text-conape-navy tracking-wider mb-2.5 uppercase flex items-center gap-3">
+                            <span class="w-1 h-4 bg-conape-red"></span>
+                            ${sec.titulo}
+                        </h2>
+                        ${subtemasContent}
+                        ${signatureHTML}
+                    `;
+                    currentPageDiv.appendChild(sectionHTML);
+                });
+
+                // Inyectar números de página reales en el pie de página de la vista previa de hojas físicas
+                const previewPages = pagesContainer.querySelectorAll('.paper-page');
+                previewPages.forEach((page, index) => {
+                    const footerPageNum = page.querySelector('.page-num-span');
+                    if (footerPageNum) {
+                        footerPageNum.innerText = `Pág. ${index + 3}`;
+                    }
+                });
+            }
+        }
+
+        // Auxiliar de seteo seguro de atributos de valor
+        function safeSetValue(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.value = val || '';
+        }
+
+        // Auxiliar de lectura segura de atributos de valor
+        function safeGetValue(id) {
+            const el = document.getElementById(id);
+            return el ? el.value : '';
+        }
+
+        function updateSectionTitle(secId, value) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (sec) {
+                sec.titulo = value;
+                saveToLocalStorage();
+                renderSidebarAndPages();
+            }
+        }
+
+        function updateSectionPage(secId, value) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (sec) {
+                sec.pagina = value;
+                saveToLocalStorage();
+                renderSidebarAndPages();
+            }
+        }
+
+        // FUNCIÓN AUXILIAR PARA CREAR UNA PÁGINA FÍSICA LETTER CON SUS ENCABEZADOS Y PIES DE PÁGINA
+        function createNewPaperPage() {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = "paper-page text-left";
+            pageDiv.innerHTML = `
+                <div class="calibri-header-container">
+                    <span class="meta-hdr-left-span">${reportData.metadata.hdrLeft}</span>
+                    <span class="meta-hdr-right-span">${reportData.metadata.hdrRight}</span>
+                </div>
+                
+                <div class="calibri-footer-container">
+                    <span class="meta-ftr-left-span">${reportData.metadata.ftrLeft}</span>
+                    <span class="font-bold page-num-span">Pág. 3</span>
+                </div>
+            `;
+            return pageDiv;
+        }
+
+        function updateSectionBreak(secId, checked) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (sec) {
+                sec.pageBreakBefore = checked;
+                saveToLocalStorage();
+                renderSidebarAndPages();
+            }
+        }
+
+        function updateSubtemaTitle(secId, subId, value) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (sec) {
+                const sub = sec.subtemas.find(s => s.id === subId);
+                if (sub) {
+                    sub.subtitulo = value;
+                    saveToLocalStorage();
+                    renderSidebarAndPages();
+                }
+            }
+        }
+    </script>
+    <script>
+        // Rellenar las cañas de los editores del panel izquierdo desde los datos actuales del JSON
+        function initializeSidebarEditors() {
+            renderSidebarAndPages();
+        }
+
+        // Sincroniza controles del panel lateral con los metadatos y textos cargados de forma ultra-defensiva
+        function updateInputsFromMetadata() {
+            const meta = reportData.metadata;
+
+            safeSetValue('inp-titulo', meta.titulo);
+            safeSetValue('inp-subtitulo', meta.subtitulo);
+            safeSetValue('inp-trimestre', meta.trimestre);
+            safeSetValue('inp-ano', meta.ano);
+            safeSetValue('inp-hdr-left', meta.hdrLeft);
+            safeSetValue('inp-hdr-right', meta.hdrRight);
+            safeSetValue('inp-ftr-left', meta.ftrLeft);
+            safeSetValue('inp-dirigido', meta.dirigido);
+            safeSetValue('inp-dirigido-cargo', meta.dirigidoCargo);
+            safeSetValue('inp-autor', meta.autor);
+            safeSetValue('inp-revisado', meta.revisado);
+            safeSetValue('inp-revisado-cargo', meta.revisadoCargo);
+            safeSetValue('inp-autor-cargo', meta.autorCargo || "Administrador de Base de Datos");
+            safeSetValue('inp-direccion', meta.direccion || "Dirección de Tecnologías de la Información y Comunicación");
+
+            // Sincronizar cajas del editor enriquecido dinámico
+            renderSidebarAndPages();
+        }
+
+        // Actualizar datos modificados individualmente en el panel de forma defensiva
+        function updateMetadata() {
+            reportData.metadata.titulo = safeGetValue('inp-titulo');
+            reportData.metadata.subtitulo = safeGetValue('inp-subtitulo');
+            reportData.metadata.trimestre = safeGetValue('inp-trimestre');
+            reportData.metadata.ano = safeGetValue('inp-ano');
+            reportData.metadata.hdrLeft = safeGetValue('inp-hdr-left');
+            reportData.metadata.hdrRight = safeGetValue('inp-hdr-right');
+            reportData.metadata.ftrLeft = safeGetValue('inp-ftr-left');
+            reportData.metadata.dirigido = safeGetValue('inp-dirigido');
+            reportData.metadata.dirigidoCargo = safeGetValue('inp-dirigido-cargo');
+            reportData.metadata.autor = safeGetValue('inp-autor');
+            reportData.metadata.revisado = safeGetValue('inp-revisado');
+            reportData.metadata.revisadoCargo = safeGetValue('inp-revisado-cargo');
+            reportData.metadata.autorCargo = safeGetValue('inp-autor-cargo');
+            reportData.metadata.direccion = safeGetValue('inp-direccion');
+
+            saveToLocalStorage();
+            renderSidebarAndPages();
+        }
+
+        // Alternar visualización del Panel Lateral Izquierdo
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar-container');
+            const toggleIconContainer = document.getElementById('toggle-icon-container');
+
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                toggleIconContainer.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+                `;
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+                toggleIconContainer.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                `;
+            }
+        }
+
+        // Toggle para la sección 12 de faltantes
+        function toggleFaltantes() {
+            const hasExtraSec = reportData.secciones.some(s => s.id === "sec_faltantes");
+            const btn = document.getElementById('btn-faltantes');
+
+            if (!hasExtraSec) {
+                // Agregar la sección de faltantes
+                const faltantesSec = JSON.parse(JSON.stringify(defaultReportData.extraSec_faltantes));
+                reportData.secciones.push(faltantesSec);
+                btn.innerHTML = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> <span class="text-[9px] uppercase font-bold tracking-wider">Excluir Sec 12</span>`;
+            } else {
+                // Quitar la sección de faltantes
+                reportData.secciones = reportData.secciones.filter(s => s.id !== "sec_faltantes");
+                btn.innerHTML = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> <span class="text-[9px] uppercase font-bold tracking-wider">Incluir Sec 12</span>`;
+            }
+            saveToLocalStorage();
+            renderSidebarAndPages();
+        }
+
+        // Inicialización del documento técnico
+        window.onload = function() {
+            // Verificar si inicialmente tenemos cargada la sección de faltantes para dar estilo al botón
+            const btn = document.getElementById('btn-faltantes');
+            const hasExtraSec = reportData.secciones.some(s => s.id === "sec_faltantes");
+            if (hasExtraSec && btn) {
+                btn.innerHTML = `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> <span class="text-[9px] uppercase font-bold tracking-wider">Excluir Sec 12</span>`;
+            }
+
+            updateInputsFromMetadata();
+            renderSidebarAndPages();
+            
+            if (window.innerWidth >= 1024) {
+                const sidebar = document.getElementById('sidebar-container');
+                if (sidebar) {
+                    sidebar.classList.remove('-translate-x-full');
+                    sidebar.classList.add('translate-x-0');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
