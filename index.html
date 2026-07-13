@@ -909,16 +909,66 @@
             saveToLocalStorage();
         }
 
-        function insertTab() {
-            const selection = window.getSelection();
-            const tabHtml = '&nbsp;&nbsp;&nbsp;&nbsp;';
+        function getSelectedParagraphBlocks(range, editable) {
+            const blocks = [];
+            const seen = new Set();
 
-            if (selection && selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
+            const addBlock = (node) => {
+                if (!node) return;
+
+                let current = node.nodeType === 3 ? node.parentElement : node;
+                while (current && current !== editable) {
+                    if (current.matches('p, li, div, blockquote, section, h1, h2, h3, h4, h5, h6, td')) {
+                        if (!seen.has(current)) {
+                            blocks.push(current);
+                            seen.add(current);
+                        }
+                        break;
+                    }
+                    current = current.parentElement;
+                }
+            };
+
+            if (range && !range.collapsed) {
+                const fragment = range.cloneContents();
+                fragment.querySelectorAll('p, li, div, blockquote, section, h1, h2, h3, h4, h5, h6, td').forEach(el => addBlock(el));
+            }
+
+            addBlock(range.startContainer);
+            addBlock(range.endContainer);
+
+            return blocks.filter(Boolean).filter(el => el.closest('[contenteditable="true"]') === editable);
+        }
+
+        function indentBlock(block, delta = 32) {
+            const current = parseFloat(getComputedStyle(block).marginLeft || '0');
+            block.style.marginLeft = `${current + delta}px`;
+        }
+
+        function insertTab(event = null) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const selection = window.getSelection();
+            if (!selection || selection.rangeCount === 0) return;
+
+            const range = selection.getRangeAt(0);
+            const editable = range.commonAncestorContainer?.nodeType === 3
+                ? range.commonAncestorContainer.parentElement
+                : range.commonAncestorContainer;
+
+            const editor = editable?.closest('[contenteditable="true"]');
+            if (!editor) return;
+
+            const blocks = getSelectedParagraphBlocks(range, editor);
+            if (blocks.length > 0) {
+                blocks.forEach(block => indentBlock(block));
+            } else {
+                const tabHtml = '&nbsp;&nbsp;&nbsp;&nbsp;';
                 const fragment = range.createContextualFragment(tabHtml);
                 range.insertNode(fragment);
-            } else {
-                document.execCommand('insertHTML', false, tabHtml);
             }
 
             saveToLocalStorage();
@@ -1392,7 +1442,8 @@
                                         </button>
                                     </div>
                                     <div contenteditable="true" id="editor-${sec.id}-${sub.id}" class="p-2 text-xs text-slate-955 bg-white min-h-[100px] border border-slate-300 rounded focus:outline-none" 
-                                        oninput="syncFromEditor('${sec.id}', '${sub.id}', this.innerHTML)">${sub.contenido}</div>
+                                        oninput="syncFromEditor('${sec.id}', '${sub.id}', this.innerHTML)"
+                                        onkeydown="if (event.key === 'Tab') { event.preventDefault(); event.stopPropagation(); insertTab(event); }">${sub.contenido}</div>
                                 </div>
                             </div>
                         `;
@@ -1482,8 +1533,8 @@
                         signatureBlock.className = 'pt-8 calibri-body';
                         signatureBlock.innerHTML = `
                             <p class="text-[11px] font-bold text-slate-900 uppercase tracking-wider text-center mb-2">Validan formalmente la veracidad técnica del informe:</p>
-                            <div class="grid grid-cols-2 gap-10 mt-6">
-                                <div class="text-center flex flex-col justify-end min-h-[180px] border-b border-transparent pb-2">
+                            <div class="grid grid-cols-2 gap-14 mt-8">
+                                <div class="text-center flex flex-col justify-end min-h-[240px] border-b border-transparent pb-3">
                                     <div class="border-t border-slate-400 mx-auto w-52 pt-3">
                                         <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Realizado por:</p>
                                         <p class="text-xs font-extrabold text-slate-900">${reportData.metadata.autor}</p>
@@ -1491,7 +1542,7 @@
                                         <p class="text-[9px] text-conape-navy font-bold uppercase mt-1">CONAPE DTIC</p>
                                     </div>
                                 </div>
-                                <div class="text-center flex flex-col justify-end min-h-[180px] border-b border-transparent pb-2">
+                                <div class="text-center flex flex-col justify-end min-h-[240px] border-b border-transparent pb-3">
                                     <div class="border-t border-slate-400 mx-auto w-52 pt-3">
                                         <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Revisado por:</p>
                                         <p class="text-xs font-extrabold text-slate-900">${reportData.metadata.revisado}</p>
