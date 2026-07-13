@@ -1308,6 +1308,9 @@
         }
 
         function renderSidebarAndPages() {
+            const scrollContainer = document.querySelector('#sidebar-container .custom-scrollbar');
+            const previousScrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
+
             normalizeReportData();
             // Renderizar Metadatos Básicos
             const meta = reportData.metadata;
@@ -1505,6 +1508,7 @@
 
                     const sectionTitle = document.createElement('h2');
                     sectionTitle.className = "calibri-header text-conape-navy tracking-wider mb-2.5 uppercase flex items-center gap-3";
+                    sectionTitle.dataset.previewSectionId = sec.id;
                     sectionTitle.innerHTML = `<span class="w-1 h-4 bg-conape-red"></span> ${sec.titulo}`;
                     currentPageDiv.appendChild(sectionTitle);
 
@@ -1517,7 +1521,8 @@
 
                         const block = document.createElement('div');
                         block.className = `mt-2 page-subtopic-block${sub.pageBreakBefore ? ' page-break-before-subtopic' : ''}`;
-                        const subtitleHTML = sub.subtitulo ? `<h3 class="calibri-content-title text-slate-800 uppercase tracking-widest pt-2 page-subtitle">${sub.subtitulo}</h3>` : '';
+                        block.dataset.previewSubtopicId = `${sec.id}-${sub.id}`;
+                        const subtitleHTML = sub.subtitulo ? `<h3 class="calibri-content-title text-slate-800 uppercase tracking-widest pt-2 page-subtitle" data-subtopic-title-id="${sec.id}-${sub.id}">${sub.subtitulo}</h3>` : '';
                         block.innerHTML = `
                             ${subtitleHTML}
                             <div id="preview-${sec.id}-${sub.id}" class="calibri-body text-slate-700 text-justify" contenteditable="true" oninput="syncFromPreview('${sec.id}', '${sub.id}', this.innerHTML)">
@@ -1565,6 +1570,12 @@
                     }
                 });
             }
+
+            requestAnimationFrame(() => {
+                if (scrollContainer) {
+                    scrollContainer.scrollTop = previousScrollTop;
+                }
+            });
         }
 
         // Auxiliar de seteo seguro de atributos de valor
@@ -1583,8 +1594,10 @@
             const sec = reportData.secciones.find(s => s.id === secId);
             if (sec) {
                 sec.titulo = value;
+                document.querySelectorAll(`[data-preview-section-id="${secId}"]`).forEach(el => {
+                    el.innerHTML = `<span class="w-1 h-4 bg-conape-red"></span> ${value}`;
+                });
                 saveToLocalStorage();
-                renderSidebarAndPages();
             }
         }
 
@@ -1630,8 +1643,21 @@
                 const sub = sec.subtemas.find(s => s.id === subId);
                 if (sub) {
                     sub.subtitulo = value;
+                    document.querySelectorAll(`[data-preview-subtopic-id="${secId}-${subId}"]`).forEach(block => {
+                        let titleEl = block.querySelector('.page-subtitle');
+                        if (value) {
+                            if (!titleEl) {
+                                titleEl = document.createElement('h3');
+                                titleEl.className = 'calibri-content-title text-slate-800 uppercase tracking-widest pt-2 page-subtitle';
+                                titleEl.dataset.subtopicTitleId = `${secId}-${subId}`;
+                                block.insertBefore(titleEl, block.firstChild);
+                            }
+                            titleEl.textContent = value;
+                        } else if (titleEl) {
+                            titleEl.remove();
+                        }
+                    });
                     saveToLocalStorage();
-                    renderSidebarAndPages();
                 }
             }
         }
