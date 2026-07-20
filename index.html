@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -412,24 +413,30 @@
                                 <input type="text" id="inp-dirigido-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Realizado Por</label>
-                                <input type="text" id="inp-autor" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
-                            </div>
-                            <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Revisado Por</label>
-                                <input type="text" id="inp-revisado" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
-                            </div>
+                        <div class="flex items-center justify-between gap-2 rounded border border-slate-800/70 bg-slate-900/70 px-2.5 py-1.5">
+                            <label for="chk-mostrar-revisado" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider cursor-pointer">Mostrar bloque "Revisado por"</label>
+                            <input type="checkbox" id="chk-mostrar-revisado" checked onchange="toggleRevisadoSection(this.checked)" class="w-4 h-4 rounded text-conape-navy">
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Realizador</label>
-                                <input type="text" id="inp-autor-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                        <div id="revisado-fields-group">
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                <div>
+                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Realizado Por</label>
+                                    <input type="text" id="inp-autor" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Revisado Por</label>
+                                    <input type="text" id="inp-revisado" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Revisor</label>
-                                <input type="text" id="inp-revisado-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                <div>
+                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Realizador</label>
+                                    <input type="text" id="inp-autor-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Revisor</label>
+                                    <input type="text" id="inp-revisado-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -520,7 +527,7 @@
                                         <p class="font-black text-white text-[15px]" style="color: #ffffff !important;" id="lbl-autor-cover">Ronniel Aybar V.</p>
                                         <p class="text-[12px]" style="color: #ffffff !important;" id="lbl-autor-cargo-cover">Administrador de Base de Datos</p>
                                     </div>
-                                    <div>
+                                    <div id="revisado-cover-block">
                                         <span class="font-bold tracking-wider text-[10px] uppercase block" style="color: #93c5fd !important;">Revisado por:</span>
                                         <p class="font-black text-white text-[15px] leading-tight" style="color: #ffffff !important;" id="lbl-revisado-cover">Luis E. María Pichardo</p>
                                         <p class="text-[12px]" style="color: #ffffff !important;" id="lbl-revisado-cargo-cover">Director de DTIC</p>
@@ -583,6 +590,7 @@
                 autorCargo: "Administrador de Bases de Datos / Coordinador Técnico DTIC",
                 revisado: "Luis E. María Pichardo",
                 revisadoCargo: "Director de DTIC",
+                mostrarRevisado: true,
                 direccion: "Dirección de Tecnologías de la Información y Comunicación"
             },
             secciones: [
@@ -1342,6 +1350,16 @@
             const lblAutorCargoCover = document.getElementById('lbl-autor-cargo-cover');
             if (lblAutorCargoCover) lblAutorCargoCover.innerText = meta.autorCargo || "Administrador de Base de Datos";
 
+            const showRevisado = meta.mostrarRevisado !== false;
+            const revisadoFieldsGroup = document.getElementById('revisado-fields-group');
+            if (revisadoFieldsGroup) revisadoFieldsGroup.style.display = showRevisado ? '' : 'none';
+
+            const revisadoCoverBlock = document.getElementById('revisado-cover-block');
+            if (revisadoCoverBlock) revisadoCoverBlock.style.display = showRevisado ? '' : 'none';
+
+            const chkMostrarRevisado = document.getElementById('chk-mostrar-revisado');
+            if (chkMostrarRevisado) chkMostrarRevisado.checked = showRevisado;
+
             // Firmas formales finales (Control defensivo de nulos)
             const lblAutorFirma = document.getElementById('lbl-autor-firma');
             if (lblAutorFirma) lblAutorFirma.innerText = meta.autor;
@@ -1536,9 +1554,19 @@
                         const signatureBlock = document.createElement('div');
                         signatureBlock.id = 'conclusions-firma-block';
                         signatureBlock.className = 'pt-8 calibri-body';
+                        const showRevisado = reportData.metadata.mostrarRevisado !== false;
+                        const reviewerHTML = showRevisado ? `
+                            <div class="text-center flex flex-col justify-end min-h-[240px] border-b border-transparent pb-3">
+                                <div class="border-t border-slate-400 mx-auto w-52 pt-3">
+                                    <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Revisado por:</p>
+                                    <p class="text-xs font-extrabold text-slate-900">${reportData.metadata.revisado}</p>
+                                    <p class="text-[10px] text-slate-500 leading-tight">${reportData.metadata.revisadoCargo || 'Director de DTIC'}</p>
+                                    <p class="text-[9px] text-conape-navy font-bold uppercase mt-1">CONAPE DTIC</p>
+                                </div>
+                            </div>` : '';
                         signatureBlock.innerHTML = `
                             <p class="text-[11px] font-bold text-slate-900 uppercase tracking-wider text-center mb-2">Validan formalmente la veracidad técnica del informe:</p>
-                            <div class="grid grid-cols-2 gap-14 mt-8">
+                            <div class="${showRevisado ? 'grid grid-cols-2 gap-14 mt-8' : 'flex justify-center mt-8'}">
                                 <div class="text-center flex flex-col justify-end min-h-[240px] border-b border-transparent pb-3">
                                     <div class="border-t border-slate-400 mx-auto w-52 pt-3">
                                         <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Realizado por:</p>
@@ -1547,14 +1575,7 @@
                                         <p class="text-[9px] text-conape-navy font-bold uppercase mt-1">CONAPE DTIC</p>
                                     </div>
                                 </div>
-                                <div class="text-center flex flex-col justify-end min-h-[240px] border-b border-transparent pb-3">
-                                    <div class="border-t border-slate-400 mx-auto w-52 pt-3">
-                                        <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Revisado por:</p>
-                                        <p class="text-xs font-extrabold text-slate-900">${reportData.metadata.revisado}</p>
-                                        <p class="text-[10px] text-slate-500 leading-tight">${reportData.metadata.revisadoCargo || 'Director de DTIC'}</p>
-                                        <p class="text-[9px] text-conape-navy font-bold uppercase mt-1">CONAPE DTIC</p>
-                                    </div>
-                                </div>
+                                ${reviewerHTML}
                             </div>
                         `;
                         currentPageDiv.appendChild(signatureBlock);
@@ -1698,8 +1719,16 @@
             safeSetValue('inp-revisado-cargo', meta.revisadoCargo);
             safeSetValue('inp-autor-cargo', meta.autorCargo || "Administrador de Base de Datos");
             safeSetValue('inp-direccion', meta.direccion || "Dirección de Tecnologías de la Información y Comunicación");
+            const chkMostrarRevisado = document.getElementById('chk-mostrar-revisado');
+            if (chkMostrarRevisado) chkMostrarRevisado.checked = meta.mostrarRevisado !== false;
 
             // Sincronizar cajas del editor enriquecido dinámico
+            renderSidebarAndPages();
+        }
+
+        function toggleRevisadoSection(isVisible) {
+            reportData.metadata.mostrarRevisado = Boolean(isVisible);
+            saveToLocalStorage();
             renderSidebarAndPages();
         }
 
@@ -1719,6 +1748,8 @@
             reportData.metadata.revisadoCargo = safeGetValue('inp-revisado-cargo');
             reportData.metadata.autorCargo = safeGetValue('inp-autor-cargo');
             reportData.metadata.direccion = safeGetValue('inp-direccion');
+            const chkMostrarRevisado = document.getElementById('chk-mostrar-revisado');
+            if (chkMostrarRevisado) reportData.metadata.mostrarRevisado = chkMostrarRevisado.checked;
 
             saveToLocalStorage();
             renderSidebarAndPages();
