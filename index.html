@@ -1,12 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe de Diagnóstico NORTIC - CONAPE</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SortableJS para Drag and Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -30,6 +32,7 @@
             font-weight: 300;
             font-style: normal;
         }
+
         @font-face {
             font-family: 'Calibri';
             src: local('Calibri');
@@ -81,8 +84,8 @@
         }
 
         /* Interlineado general estricto de 1.15 con espacio de párrafo o ítem */
-        .calibri-report p, 
-        .calibri-report li, 
+        .calibri-report p,
+        .calibri-report li,
         .calibri-report table,
         .calibri-report dt,
         .calibri-report dd {
@@ -108,13 +111,14 @@
             height: 100vh;
             overflow-y: auto;
         }
-        
+
         /* Simulación de página física Letter con altura adaptable y margen de seguridad inferior */
         .paper-page {
             width: 8.5in;
             min-height: 11in;
             height: auto;
-            padding: 1.2in 1in 1.25in 1in !important; /* Margen inferior ampliado para evitar colisiones con el footer */
+            padding: 1.2in 1in 1.25in 1in !important;
+            /* Margen inferior ampliado para evitar colisiones con el footer */
             margin: 2.5rem auto;
             background: white;
             box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
@@ -163,6 +167,7 @@
             align-items: bottom;
             justify-content: space-between;
         }
+
         .index-line::after {
             content: " .............................................................................................................................................................................";
             order: 2;
@@ -172,11 +177,13 @@
             flex-grow: 1;
             margin: 0 8px;
         }
+
         .index-title {
             order: 1;
             background: white;
             padding-right: 4px;
         }
+
         .index-number {
             order: 3;
             background: white;
@@ -211,13 +218,16 @@
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
+
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #1e293b;
         }
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #475569;
             border-radius: 3px;
         }
+
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #64748b;
         }
@@ -234,35 +244,42 @@
         .paper-page:not(.cover-page) .font-medium {
             color: black !important;
         }
+
         .paper-page:not(.cover-page) .text-amber-800 {
             --tw-text-opacity: 1 !important;
             color: rgb(0 0 0) !important;
         }
 
         @media print {
-            body, 
-            #app-layout, 
-            #document-preview-area, 
+
+            body,
+            #app-layout,
+            #document-preview-area,
             #print-area {
                 background-color: #ffffff !important;
                 background: #ffffff !important;
                 color: #000000 !important;
                 overflow: visible !important;
             }
+
             .print\:hidden {
                 display: none !important;
             }
+
             .calibri-body {
                 page-break-after: auto !important;
             }
+
             #app-layout {
                 display: block !important;
             }
+
             #document-preview-area {
                 height: auto !important;
                 overflow: visible !important;
                 width: 100% !important;
             }
+
             /* Forzar que cada página sea exactamente una hoja Carta física sin bordes grises */
             .paper-page {
                 width: 8.5in !important;
@@ -278,6 +295,7 @@
                 background: #ffffff !important;
                 overflow: hidden !important;
             }
+
             .cover-page {
                 padding: 0 !important;
                 page-break-after: always !important;
@@ -288,6 +306,7 @@
                 background: #ffffff !important;
                 overflow: hidden !important;
             }
+
             /* Mapeado y anulación de márgenes del navegador para evitar franjas grises */
             @page {
                 size: letter;
@@ -296,18 +315,26 @@
         }
     </style>
 </head>
+
 <body class="text-slate-900 antialiased selection:bg-conape-navy selection:text-white calibri-report">
 
     <!-- CONTENEDOR DE LA APLICACIÓN -->
     <div id="app-layout" class="flex h-screen w-screen overflow-hidden print:block print:h-auto print:w-auto">
 
         <!-- LADO IZQUIERDO: PANEL DE EDICIÓN COLLAPSIBLE (Oculto al imprimir) -->
-        <div id="sidebar-container" class="print:hidden fixed lg:relative z-30 h-screen bg-slate-900 border-r border-slate-800 flex flex-col text-slate-100 shrink-0 shadow-2xl transition-all duration-300 w-[420px] -translate-x-full lg:translate-x-0">
-            
+        <div id="sidebar-container"
+            class="print:hidden fixed lg:relative z-30 h-screen bg-slate-900 border-r border-slate-800 flex flex-col text-slate-100 shrink-0 shadow-2xl transition-all duration-300 w-[420px] -translate-x-full lg:translate-x-0">
+
             <!-- BOTÓN DE COLAPSO (Ojo interactivo) -->
-            <button onclick="toggleSidebar()" class="absolute top-4 left-full ml-3 bg-slate-900 border border-slate-700 text-white hover:bg-slate-850 p-2.5 rounded-lg shadow-xl flex items-center gap-1.5 transition-all duration-200" title="Ver/Ocultar Editor">
+            <button onclick="toggleSidebar()"
+                class="absolute top-4 left-full ml-3 bg-slate-900 border border-slate-700 text-white hover:bg-slate-850 p-2.5 rounded-lg shadow-xl flex items-center gap-1.5 transition-all duration-200"
+                title="Ver/Ocultar Editor">
                 <span id="toggle-icon-container">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21">
+                        </path>
+                    </svg>
                 </span>
                 <span id="toggle-text" class="text-xs font-bold uppercase tracking-wider hidden sm:inline">Editor</span>
             </button>
@@ -326,35 +353,62 @@
 
                 <!-- Botones Principales de Acción -->
                 <div class="space-y-2">
-                    <button onclick="window.print()" class="w-full bg-conape-navy hover:bg-blue-800 text-white font-extrabold py-2 px-3 rounded text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    <button onclick="window.print()"
+                        class="w-full bg-conape-navy hover:bg-blue-800 text-white font-extrabold py-2 px-3 rounded text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                        </svg>
                         Imprimir / Guardar PDF
                     </button>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="downloadTemplateJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <button onclick="downloadTemplateJSON()"
+                            class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
                             Exportar JSON
                         </button>
-                        <label class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5 cursor-pointer text-center">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <label
+                            class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5 cursor-pointer text-center">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                            </svg>
                             Importar JSON
-                            <input type="file" id="json-file-input" accept=".json" class="hidden" onchange="importJSON(event)">
+                            <input type="file" id="json-file-input" accept=".json" class="hidden"
+                                onchange="importJSON(event)">
                         </label>
                     </div>
-                    
+
                     <!-- NUEVO BOTÓN: DESCARGAR A WORD (.DOCX COMPATIBLE) -->
-                    <button onclick="exportToDocx()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-2 px-3 rounded text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <button onclick="exportToDocx()"
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-extrabold py-2 px-3 rounded text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
                         Descargar a .docx (Word)
                     </button>
 
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="clearDocument()" class="w-full bg-red-800 hover:bg-red-700 text-white border border-red-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <button onclick="clearDocument()"
+                            class="w-full bg-red-800 hover:bg-red-700 text-white border border-red-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                </path>
+                            </svg>
                             Borrar Todo / Vaciar
                         </button>
-                        <button onclick="toggleFaltantes()" id="btn-faltantes" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1 border border-slate-700">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <button onclick="toggleFaltantes()" id="btn-faltantes"
+                            class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1 border border-slate-700">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
                             <span class="text-[9px] uppercase font-bold tracking-wider">Incluir Sec 12</span>
                         </button>
                     </div>
@@ -362,80 +416,142 @@
 
                 <!-- PESTAÑA 1: PORTADA Y METADATOS -->
                 <details class="group bg-slate-950 rounded border border-slate-800 overflow-hidden" open>
-                    <summary class="flex justify-between items-center p-3 text-xs font-bold text-slate-200 uppercase tracking-wider cursor-pointer bg-slate-900 hover:bg-slate-850">
+                    <summary
+                        class="flex justify-between items-center p-3 text-xs font-bold text-slate-200 uppercase tracking-wider cursor-pointer bg-slate-900 hover:bg-slate-850">
                         <span>1. Portada y Metadatos</span>
-                        <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
                     </summary>
                     <div class="p-3 space-y-3 bg-slate-950 border-t border-slate-800">
                         <div>
-                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Título del Informe</label>
-                            <input type="text" id="inp-titulo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-bold" oninput="updateMetadata()">
+                            <label
+                                class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Título
+                                del Informe</label>
+                            <input type="text" id="inp-titulo"
+                                class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-bold"
+                                oninput="updateMetadata()">
                         </div>
                         <div>
-                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Subtítulo Descriptivo</label>
-                            <textarea id="inp-subtitulo" rows="2" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium resize-none" oninput="updateMetadata()"></textarea>
+                            <label
+                                class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Subtítulo
+                                Descriptivo</label>
+                            <textarea id="inp-subtitulo" rows="2"
+                                class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium resize-none"
+                                oninput="updateMetadata()"></textarea>
                         </div>
                         <div>
-                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Dirección / Área Origen</label>
-                            <input type="text" id="inp-direccion" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-bold" oninput="updateMetadata()">
+                            <label
+                                class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Dirección
+                                / Área Origen</label>
+                            <input type="text" id="inp-direccion"
+                                class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-bold"
+                                oninput="updateMetadata()">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Trimestre</label>
-                                <input type="text" id="inp-trimestre" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                <label
+                                    class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Trimestre</label>
+                                <input type="text" id="inp-trimestre"
+                                    class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                    oninput="updateMetadata()">
                             </div>
                             <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Año</label>
-                                <input type="text" id="inp-ano" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                <label
+                                    class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Año</label>
+                                <input type="text" id="inp-ano"
+                                    class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                    oninput="updateMetadata()">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Encabezado Izq.</label>
-                                <input type="text" id="inp-hdr-left" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                <label
+                                    class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Encabezado
+                                    Izq.</label>
+                                <input type="text" id="inp-hdr-left"
+                                    class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                    oninput="updateMetadata()">
                             </div>
                             <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Encabezado Der.</label>
-                                <input type="text" id="inp-hdr-right" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                <label
+                                    class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Encabezado
+                                    Der.</label>
+                                <input type="text" id="inp-hdr-right"
+                                    class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                    oninput="updateMetadata()">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Pie de Página</label>
-                            <input type="text" id="inp-ftr-left" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                            <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Pie
+                                de Página</label>
+                            <input type="text" id="inp-ftr-left"
+                                class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                oninput="updateMetadata()">
                         </div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Dirigido A</label>
-                                <input type="text" id="inp-dirigido" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                <label
+                                    class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Dirigido
+                                    A</label>
+                                <input type="text" id="inp-dirigido"
+                                    class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                    oninput="updateMetadata()">
                             </div>
                             <div>
-                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Dirigido</label>
-                                <input type="text" id="inp-dirigido-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                <label
+                                    class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo
+                                    Dirigido</label>
+                                <input type="text" id="inp-dirigido-cargo"
+                                    class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                    oninput="updateMetadata()">
                             </div>
                         </div>
-                        <div class="flex items-center justify-between gap-2 rounded border border-slate-800/70 bg-slate-900/70 px-2.5 py-1.5">
-                            <label for="chk-mostrar-revisado" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider cursor-pointer">Mostrar bloque "Revisado por"</label>
-                            <input type="checkbox" id="chk-mostrar-revisado" checked onchange="toggleRevisadoSection(this.checked)" class="w-4 h-4 rounded text-conape-navy">
+                        <div
+                            class="flex items-center justify-between gap-2 rounded border border-slate-800/70 bg-slate-900/70 px-2.5 py-1.5">
+                            <label for="chk-mostrar-revisado"
+                                class="text-[10px] text-slate-400 font-bold uppercase tracking-wider cursor-pointer">Mostrar
+                                bloque "Revisado por"</label>
+                            <input type="checkbox" id="chk-mostrar-revisado" checked
+                                onchange="toggleRevisadoSection(this.checked)" class="w-4 h-4 rounded text-conape-navy">
                         </div>
                         <div id="revisado-fields-group">
                             <div class="grid grid-cols-2 gap-2 mt-2">
                                 <div>
-                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Realizado Por</label>
-                                    <input type="text" id="inp-autor" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Realizado
+                                        Por</label>
+                                    <input type="text" id="inp-autor"
+                                        class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                        oninput="updateMetadata()">
                                 </div>
                                 <div>
-                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Revisado Por</label>
-                                    <input type="text" id="inp-revisado" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Revisado
+                                        Por</label>
+                                    <input type="text" id="inp-revisado"
+                                        class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                        oninput="updateMetadata()">
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-2 mt-2">
                                 <div>
-                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Realizador</label>
-                                    <input type="text" id="inp-autor-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo
+                                        Realizador</label>
+                                    <input type="text" id="inp-autor-cargo"
+                                        class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                        oninput="updateMetadata()">
                                 </div>
                                 <div>
-                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo Revisor</label>
-                                    <input type="text" id="inp-revisado-cargo" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium" oninput="updateMetadata()">
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cargo
+                                        Revisor</label>
+                                    <input type="text" id="inp-revisado-cargo"
+                                        class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
+                                        oninput="updateMetadata()">
                                 </div>
                             </div>
                         </div>
@@ -458,37 +574,43 @@
         <!-- LADO DERECHO: PREVISUALIZADOR DEL INFORME (PÁGINAS LETTER) -->
         <div id="document-preview-area" class="flex-1 bg-slate-100 p-6 print:p-0 print:bg-white">
             <div id="print-area" class="max-w-fit mx-auto print:w-full">
-                
+
                 <!-- PÁGINA 1: PORTADA OFICIAL (Centrada verticalmente, título en rojo y ola completa) -->
                 <div class="paper-page cover-page">
                     <!-- Contenedor Superior con Margen para alinear con el resto del documento -->
                     <!-- Flex-1 y Justify-Center para garantizar centrado matemático en el centro de la página -->
                     <div class="flex-1 flex flex-col justify-center items-center px-[1.2in] text-center gap-6">
                         <!-- Logo Oficial Central (Cúpula de CONAPE) -->
-                        <img src="https://www.conape.gob.do/_includes/images/logo1b.png" alt="Logo Oficial CONAPE" class="h-44 object-contain mb-2">
+                        <img src="https://www.conape.gob.do/_includes/images/logo1b.png" alt="Logo Oficial CONAPE"
+                            class="h-44 object-contain mb-2">
 
                         <div class="space-y-5">
                             <!-- Título Principal en Rojo de Alto Impacto (fuente Calibri Light, negrita, tamaño 30) -->
-                            <h1 class="text-conape-red uppercase tracking-wide leading-tight calibri-cover-title" contenteditable="true" id="lbl-cover-main-title">
+                            <h1 class="text-conape-red uppercase tracking-wide leading-tight calibri-cover-title"
+                                contenteditable="true" id="lbl-cover-main-title">
                                 Consejo Nacional de la Persona Envejeciente (CONAPE)
                             </h1>
-                            
+
                             <!-- Subtítulo de Dirección -->
-                            <h2 class="text-slate-600 tracking-widest uppercase leading-snug calibri-header meta-direccion-span">
+                            <h2
+                                class="text-slate-600 tracking-widest uppercase leading-snug calibri-header meta-direccion-span">
                                 Dirección de Tecnologías de la Información y Comunicación
                             </h2>
 
                             <!-- Separador Sutil -->
                             <div class="py-1">
-                                <h3 class="text-slate-950 uppercase leading-snug tracking-normal meta-title-span font-bold" style="font-size: 16px;">
+                                <h3 class="text-slate-950 uppercase leading-snug tracking-normal meta-title-span font-bold"
+                                    style="font-size: 16px;">
                                     Informe de Diagnóstico: Estatus Actual NORTIC en CONAPE
                                 </h3>
                             </div>
 
                             <!-- Propósito Corto -->
                             <div class="px-6">
-                                <p class="text-slate-500 tracking-normal meta-subtitulo-span leading-relaxed font-semibold" style="font-size: 11px;">
-                                    DOCUMENTO TÉCNICO: INFORME DE LOS ANÁLISIS Y LISTADO DE LOS PROCEDIMIENTOS ACTUALIZADOS
+                                <p class="text-slate-500 tracking-normal meta-subtitulo-span leading-relaxed font-semibold"
+                                    style="font-size: 11px;">
+                                    DOCUMENTO TÉCNICO: INFORME DE LOS ANÁLISIS Y LISTADO DE LOS PROCEDIMIENTOS
+                                    ACTUALIZADOS
                                 </p>
                             </div>
 
@@ -496,7 +618,8 @@
                             <div class="pt-2">
                                 <p class="text-slate-800 uppercase tracking-widest font-bold" style="font-size: 12px;">
                                     (<span class="meta-trimestre-span">2do Trimestre</span>) <br>
-                                    <span class="text-slate-900 mt-1 block font-black" style="font-size: 13px;">AÑO <span class="meta-ano-span">2026</span></span>
+                                    <span class="text-slate-900 mt-1 block font-black" style="font-size: 13px;">AÑO
+                                        <span class="meta-ano-span">2026</span></span>
                                 </p>
                             </div>
                         </div>
@@ -506,31 +629,43 @@
                     <div class="w-full mt-auto relative z-10">
                         <!-- Transición de Ola Reducida en Altura -->
                         <div class="w-full h-12 -mb-1 relative overflow-hidden pointer-events-none z-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none" class="absolute bottom-0 left-0 w-full h-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none"
+                                class="absolute bottom-0 left-0 w-full h-full">
                                 <path fill="#0d3c6c" d="M0,80 C360,130 720,20 1440,90 L1440,120 L0,120 Z"></path>
                             </svg>
                         </div>
-                        
+
                         <!-- Bloque Sólido Compacto con Sangría de Margen Interno de 1 pulgada para las firmas -->
                         <div class="bg-conape-navy text-white px-[1in] pb-6 pt-2 relative z-10 text-left">
                             <div class="flex justify-between items-end text-[13px]">
                                 <!-- Dirigido A -->
                                 <div class="text-left w-1/2 pr-4 self-end">
-                                    <span class="font-bold tracking-wider text-[10px] uppercase block mb-1" style="color: #93c5fd !important;">Dirigido a:</span>
-                                    <p class="font-black text-white text-[15px] leading-tight" style="color: #ffffff !important;" id="lbl-dirigido-cover">Dr. Demetrio Vicente Ureña</p>
-                                    <p class="text-[12px]" style="color: #ffffff !important;" id="lbl-dirigido-cargo-cover">Director Ejecutivo</p>
+                                    <span class="font-bold tracking-wider text-[10px] uppercase block mb-1"
+                                        style="color: #93c5fd !important;">Dirigido a:</span>
+                                    <p class="font-black text-white text-[15px] leading-tight"
+                                        style="color: #ffffff !important;" id="lbl-dirigido-cover">Dr. Demetrio Vicente
+                                        Ureña</p>
+                                    <p class="text-[12px]" style="color: #ffffff !important;"
+                                        id="lbl-dirigido-cargo-cover">Director Ejecutivo</p>
                                 </div>
                                 <!-- Autores / Creadores -->
                                 <div class="text-right w-1/2 pl-4 space-y-3 self-end">
                                     <div>
-                                        <span class="font-bold tracking-wider text-[10px] uppercase block" style="color: #93c5fd !important;">Realizado por:</span>
-                                        <p class="font-black text-white text-[15px]" style="color: #ffffff !important;" id="lbl-autor-cover">Ronniel Aybar V.</p>
-                                        <p class="text-[12px]" style="color: #ffffff !important;" id="lbl-autor-cargo-cover">Administrador de Base de Datos</p>
+                                        <span class="font-bold tracking-wider text-[10px] uppercase block"
+                                            style="color: #93c5fd !important;">Realizado por:</span>
+                                        <p class="font-black text-white text-[15px]" style="color: #ffffff !important;"
+                                            id="lbl-autor-cover">Ronniel Aybar V.</p>
+                                        <p class="text-[12px]" style="color: #ffffff !important;"
+                                            id="lbl-autor-cargo-cover">Administrador de Base de Datos</p>
                                     </div>
                                     <div id="revisado-cover-block">
-                                        <span class="font-bold tracking-wider text-[10px] uppercase block" style="color: #93c5fd !important;">Revisado por:</span>
-                                        <p class="font-black text-white text-[15px] leading-tight" style="color: #ffffff !important;" id="lbl-revisado-cover">Luis E. María Pichardo</p>
-                                        <p class="text-[12px]" style="color: #ffffff !important;" id="lbl-revisado-cargo-cover">Director de DTIC</p>
+                                        <span class="font-bold tracking-wider text-[10px] uppercase block"
+                                            style="color: #93c5fd !important;">Revisado por:</span>
+                                        <p class="font-black text-white text-[15px] leading-tight"
+                                            style="color: #ffffff !important;" id="lbl-revisado-cover">Luis E. María
+                                            Pichardo</p>
+                                        <p class="text-[12px]" style="color: #ffffff !important;"
+                                            id="lbl-revisado-cargo-cover">Director de DTIC</p>
                                     </div>
                                 </div>
                             </div>
@@ -798,7 +933,7 @@
         function normalizeReportData() {
             if (!reportData) return;
             if (!reportData.metadata) reportData.metadata = {};
-            
+
             // Normalizar metadatos para asegurar que existan todos los campos predeterminados y evitar fallos de renderizado
             const meta = reportData.metadata;
             const defMeta = defaultReportData.metadata;
@@ -1052,7 +1187,7 @@
                     revisadoCargo: "",
                     direccion: "Dirección / Departamento de Tecnología"
                 };
-                
+
                 // Limpiar contenido y subtítulos de las 11 secciones oficiales
                 reportData.secciones = defaultReportData.secciones.map(sec => {
                     const cleanSec = JSON.parse(JSON.stringify(sec));
@@ -1063,7 +1198,7 @@
                     });
                     return cleanSec;
                 });
-                
+
                 // Excluir sección de faltantes al limpiar
                 const btn = document.getElementById('btn-faltantes');
                 if (btn) {
@@ -1142,7 +1277,7 @@
         function exportToDocx() {
             // Obtenemos el HTML renderizado de los previsualizadores de páginas
             const content = document.getElementById('print-area').innerHTML;
-            
+
             // Hojas de estilo heredadas y mapeadas a Office XML para simular el look Calibri exacto de CONAPE
             const styles = `
                 <style>
@@ -1211,7 +1346,7 @@
                     .print\\:hidden { display: none !important; }
                 </style>
             `;
-            
+
             // Estructura XML para empaquetar el HTML en un documento que Ms Word abre de forma nativa
             const htmlDoc = `
                 <html xmlns:o="urn:schemas-microsoft-com:office:office" 
@@ -1227,12 +1362,12 @@
                 </body>
                 </html>
             `;
-            
+
             // Descarga del archivo usando un blob compatible
             const blob = new Blob(['\ufeff' + htmlDoc], {
                 type: 'application/msword'
             });
-            
+
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1265,7 +1400,7 @@
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
                     if (importedData && importedData.metadata && importedData.secciones) {
@@ -1292,7 +1427,7 @@
             const sub = sec.subtemas.find(s => s.id === subId);
             if (!sub) return;
             sub.contenido = htmlContent;
-            
+
             const previewEl = document.getElementById(`preview-${secId}-${subId}`);
             if (previewEl) {
                 previewEl.innerHTML = htmlContent;
@@ -1370,6 +1505,20 @@
             const lblRevisadoCargoFirma = document.getElementById('lbl-revisado-cargo-firma');
             if (lblRevisadoCargoFirma) lblRevisadoCargoFirma.innerText = meta.revisadoCargo;
 
+            // 0. PRE-CALCULAR PÁGINAS DINÁMICAMENTE
+            let currentSimulatedPage = 3; // Empieza en la pág 3 (después de portada e índice)
+            reportData.secciones.forEach(sec => {
+                if (sec.pageBreakBefore) {
+                    currentSimulatedPage++;
+                }
+                sec.pagina = currentSimulatedPage.toString();
+                sec.subtemas.forEach(sub => {
+                    if (sub.pageBreakBefore) {
+                        currentSimulatedPage++;
+                    }
+                });
+            });
+
             // 1. RENDERIZAR ÍNDICE DINÁMICO (Removido Portada e Índice de la lista)
             const indexContainer = document.getElementById('dynamic-index-container');
             if (indexContainer) {
@@ -1392,15 +1541,19 @@
 
                 reportData.secciones.forEach((sec, sIdx) => {
                     const details = document.createElement('details');
-                    details.className = "group bg-slate-950 rounded border border-slate-800 overflow-hidden shadow-sm";
+                    details.className = "group bg-slate-950 rounded border border-slate-800 overflow-hidden shadow-sm seccion-item";
+                    details.dataset.sectionId = sec.id;
                     details.open = true;
-                    
+
                     let subtemasHTML = '';
                     sec.subtemas.forEach((sub, subIdx) => {
                         subtemasHTML += `
-                            <div class="p-3 bg-slate-900 border border-slate-800 rounded space-y-2 mt-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Subtema ${subIdx + 1}</span>
+                            <div class="p-3 bg-slate-900 border border-slate-800 rounded space-y-2 mt-2 subtema-item" data-subtema-id="${sub.id}">
+                                <div class="flex justify-between items-center handle-subtema cursor-move" title="Arrastrar para mover">
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                                        Subtema ${subIdx + 1}
+                                    </span>
                                     <button onclick="event.preventDefault(); event.stopPropagation(); deleteSubtema('${sec.id}', '${sub.id}')" class="text-red-500 hover:text-red-400 text-[10px] font-bold uppercase tracking-wider">Eliminar</button>
                                 </div>
                                 <div>
@@ -1472,15 +1625,19 @@
 
                     details.innerHTML = `
                         <summary class="flex justify-between items-center p-3 text-xs font-bold text-slate-200 uppercase tracking-wider cursor-pointer bg-slate-900 hover:bg-slate-800 transition-colors duration-150">
-                            <span>${sec.titulo}</span>
+                            <div class="flex items-center flex-1 gap-2">
+                                <div class="handle-seccion cursor-move text-slate-500 hover:text-slate-300 p-1 rounded" onclick="event.preventDefault(); event.stopPropagation();" title="Arrastrar para mover">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                                </div>
+                                <span>${sec.titulo}</span>
+                            </div>
                             <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </summary>
                         <div class="p-3 bg-slate-950 border-t border-slate-800 space-y-3">
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Página en Índice</label>
-                                    <input type="text" value="${sec.pagina}" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1 focus:outline-none text-xs text-slate-955 font-bold text-center" 
-                                        oninput="updateSectionPage('${sec.id}', this.value)">
+                                    <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1" title="Se calcula automáticamente basado en saltos de página">Página en Índice (Auto)</label>
+                                    <input type="text" value="${sec.pagina}" class="w-full bg-slate-100 text-slate-500 border border-slate-300 rounded px-2.5 py-1 focus:outline-none text-xs font-bold text-center cursor-not-allowed" readonly>
                                 </div>
                                 <div class="flex items-center justify-center gap-2 pt-4" onclick="event.stopPropagation()">
                                     <input type="checkbox" id="break-${sec.id}" ${sec.pageBreakBefore ? 'checked' : ''} onchange="event.stopPropagation(); updateSectionBreak('${sec.id}', this.checked)" class="w-4 h-4 rounded text-conape-navy">
@@ -1488,7 +1645,7 @@
                                 </div>
                             </div>
                             
-                            <div class="border-t border-slate-800 pt-2 space-y-1">
+                            <div class="border-t border-slate-800 pt-2 space-y-1 subtemas-container" data-section-id="${sec.id}">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Subtemas de la Sección</span>
                                 ${subtemasHTML}
                             </div>
@@ -1589,6 +1746,44 @@
                     if (footerPageNum) {
                         footerPageNum.innerText = `Pág. ${index + 3}`;
                     }
+                });
+            }
+
+            // Inicializar SortableJS para Drag and Drop
+            if (window.Sortable && editorsContainer) {
+                new Sortable(editorsContainer, {
+                    handle: '.handle-seccion',
+                    draggable: '.seccion-item',
+                    animation: 150,
+                    onEnd: function (evt) {
+                        const newOrder = Array.from(editorsContainer.querySelectorAll('.seccion-item')).map(el => el.dataset.sectionId);
+                        reportData.secciones.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+                        // Renumerar títulos
+                        reportData.secciones.forEach((sec, idx) => {
+                            const cleanTitle = sec.titulo.replace(/^\d+\.\s*/, '');
+                            sec.titulo = `${idx + 1}. ${cleanTitle}`;
+                        });
+                        saveToLocalStorage();
+                        renderSidebarAndPages();
+                    }
+                });
+
+                document.querySelectorAll('.subtemas-container').forEach(container => {
+                    const secId = container.dataset.sectionId;
+                    new Sortable(container, {
+                        handle: '.handle-subtema',
+                        draggable: '.subtema-item',
+                        animation: 150,
+                        onEnd: function (evt) {
+                            const newOrder = Array.from(container.querySelectorAll('.subtema-item')).map(el => el.dataset.subtemaId);
+                            const sec = reportData.secciones.find(s => s.id === secId);
+                            if (sec) {
+                                sec.subtemas.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+                                saveToLocalStorage();
+                                renderSidebarAndPages();
+                            }
+                        }
+                    });
                 });
             }
 
@@ -1795,7 +1990,7 @@
         }
 
         // Inicialización del documento técnico
-        window.onload = function() {
+        window.onload = function () {
             // Verificar si inicialmente tenemos cargada la sección de faltantes para dar estilo al botón
             const btn = document.getElementById('btn-faltantes');
             const hasExtraSec = reportData.secciones.some(s => s.id === "sec_faltantes");
@@ -1805,7 +2000,7 @@
 
             updateInputsFromMetadata();
             renderSidebarAndPages();
-            
+
             if (window.innerWidth >= 1024) {
                 const sidebar = document.getElementById('sidebar-container');
                 if (sidebar) {
@@ -1816,4 +2011,5 @@
         };
     </script>
 </body>
+
 </html>
