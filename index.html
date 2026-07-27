@@ -93,33 +93,43 @@
             margin-bottom: 1.15em !important;
         }
 
-        /* Estilos de Tabla Mejorados */
+        /* Estilos de Tabla Mejorados y Homogéneos para informes */
         .calibri-report table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 0.5em !important;
-            font-size: 11px !important; /* Ligeramente más pequeño para tablas de datos */
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin-top: 0.8em !important;
+            margin-bottom: 0.8em !important;
+            font-size: 11px !important;
         }
 
-        .calibri-report thead th {
-            background-color: #0d3c6c !important;
+        .calibri-report table thead th,
+        .calibri-report table thead td,
+        .calibri-report table tr:first-child th,
+        .calibri-report table th {
+            background-color: #1b3c6a !important;
             color: #ffffff !important;
             padding: 6px 8px !important;
             text-align: left !important;
-            border: 1px solid #0d3c6c !important;
+            border: 1px solid #1b3c6a !important;
             font-weight: bold !important;
         }
 
-        .calibri-report tbody td {
+        .calibri-report table tbody td,
+        .calibri-report table td {
             padding: 5px 8px !important;
-            border: 1px solid #cbd5e1 !important; /* slate-300 */
+            border: 1px solid #cbd5e1 !important;
         }
 
-        .calibri-report tbody tr:nth-child(odd) {
+        /* Colores alternados de filas: impar #ffffff, par #f8f9fa */
+        .calibri-report table tbody tr:nth-child(odd),
+        .calibri-report table tbody tr:nth-child(odd) td,
+        .calibri-report table tr:nth-child(odd) td {
             background-color: #ffffff !important;
         }
 
-        .calibri-report tbody tr:nth-child(even) {
+        .calibri-report table tbody tr:nth-child(even),
+        .calibri-report table tbody tr:nth-child(even) td,
+        .calibri-report table tr:nth-child(even) td {
             background-color: #f8f9fa !important;
         }
 
@@ -960,6 +970,84 @@
             "sec_faltantes": "12. Propuestas de Procedimientos Faltantes"
         };
 
+        function normalizeTablesInContent(html) {
+            if (!html || typeof html !== 'string' || !html.includes('<table')) return html;
+
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const tables = doc.querySelectorAll('table');
+
+                if (tables.length === 0) return html;
+
+                tables.forEach(table => {
+                    table.removeAttribute('bgcolor');
+                    table.removeAttribute('border');
+
+                    // Limpiar atributos style invasivos de fondo y color que rompen el tema
+                    const allElements = table.querySelectorAll('table, thead, tbody, tr, th, td');
+                    allElements.forEach(el => {
+                        if (el.style) {
+                            el.style.backgroundColor = '';
+                            el.style.background = '';
+                            el.style.color = '';
+                        }
+                        el.removeAttribute('bgcolor');
+                    });
+
+                    let thead = table.querySelector('thead');
+                    let tbody = table.querySelector('tbody');
+
+                    if (!thead) {
+                        const firstRow = table.querySelector('tr');
+                        if (firstRow) {
+                            thead = doc.createElement('thead');
+                            const headerRow = firstRow;
+
+                            const cells = headerRow.querySelectorAll('td');
+                            cells.forEach(td => {
+                                const th = doc.createElement('th');
+                                th.innerHTML = td.innerHTML;
+                                Array.from(td.attributes).forEach(attr => th.setAttribute(attr.name, attr.value));
+                                td.parentNode.replaceChild(th, td);
+                            });
+
+                            if (headerRow.parentNode) {
+                                headerRow.parentNode.removeChild(headerRow);
+                            }
+                            thead.appendChild(headerRow);
+
+                            if (tbody) {
+                                table.insertBefore(thead, tbody);
+                            } else {
+                                table.insertBefore(thead, table.firstChild);
+                            }
+                        }
+                    } else {
+                        const theadTdCells = thead.querySelectorAll('td');
+                        theadTdCells.forEach(td => {
+                            const th = doc.createElement('th');
+                            th.innerHTML = td.innerHTML;
+                            Array.from(td.attributes).forEach(attr => th.setAttribute(attr.name, attr.value));
+                            td.parentNode.replaceChild(th, td);
+                        });
+                    }
+
+                    if (!tbody) {
+                        tbody = doc.createElement('tbody');
+                        const remainingRows = Array.from(table.querySelectorAll('tr')).filter(tr => !thead.contains(tr));
+                        remainingRows.forEach(tr => tbody.appendChild(tr));
+                        table.appendChild(tbody);
+                    }
+                });
+
+                return doc.body.innerHTML;
+            } catch (err) {
+                console.error("Error al normalizar tablas:", err);
+                return html;
+            }
+        }
+
         function normalizeReportData() {
             if (!reportData) return;
             if (!reportData.metadata) reportData.metadata = {};
@@ -1013,6 +1101,9 @@
                 sec.subtemas.forEach(sub => {
                     if (sub.pageBreakBefore === undefined || sub.pageBreakBefore === null) {
                         sub.pageBreakBefore = false;
+                    }
+                    if (sub.contenido) {
+                        sub.contenido = normalizeTablesInContent(sub.contenido);
                     }
                 });
             });
@@ -1356,16 +1447,25 @@
                         width: 100%;
                         border-collapse: collapse;
                         margin-top: 12pt;
-                    }
-                    th, td {
-                        border-bottom: 1px solid #cbd5e1;
-                        padding: 6pt;
                         font-size: 10.5pt;
                     }
                     th {
-                        border-bottom: 2px solid #0f172a;
+                        background-color: #1b3c6a;
+                        color: #ffffff;
+                        border: 1px solid #1b3c6a;
+                        padding: 6pt;
                         font-weight: bold;
-                        color: #0f172a;
+                        text-align: left;
+                    }
+                    td {
+                        border: 1px solid #cbd5e1;
+                        padding: 5pt 6pt;
+                    }
+                    tbody tr:nth-child(odd) td, tr:nth-child(odd) td {
+                        background-color: #ffffff;
+                    }
+                    tbody tr:nth-child(even) td, tr:nth-child(even) td {
+                        background-color: #f8f9fa;
                     }
                     .cover-page {
                         page-break-after: always;
@@ -1721,7 +1821,6 @@
                         if (sub.pageBreakBefore) {
                             currentPageDiv = createNewPaperPage();
                             pagesContainer.appendChild(currentPageDiv);
-                            currentPageDiv.appendChild(sectionTitle.cloneNode(true));
                         }
 
                         const block = document.createElement('div');
