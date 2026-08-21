@@ -1,6 +1,6 @@
+
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -291,7 +291,6 @@
         }
 
         @media print {
-
             body,
             #app-layout,
             #document-preview-area,
@@ -402,6 +401,7 @@
                         </svg>
                         Imprimir / Guardar PDF
                     </button>
+
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="downloadTemplateJSON()"
                             class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 px-2 rounded text-[11px] transition flex items-center justify-center gap-1.5">
@@ -506,6 +506,7 @@
                                     oninput="updateMetadata()">
                             </div>
                         </div>
+
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label
@@ -524,6 +525,7 @@
                                     oninput="updateMetadata()">
                             </div>
                         </div>
+
                         <div>
                             <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Pie
                                 de Página</label>
@@ -531,6 +533,7 @@
                                 class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-medium"
                                 oninput="updateMetadata()">
                         </div>
+
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label
@@ -549,6 +552,7 @@
                                     oninput="updateMetadata()">
                             </div>
                         </div>
+
                         <div
                             class="flex items-center justify-between gap-2 rounded border border-slate-800/70 bg-slate-900/70 px-2.5 py-1.5">
                             <label for="chk-mostrar-revisado"
@@ -557,6 +561,7 @@
                             <input type="checkbox" id="chk-mostrar-revisado" checked
                                 onchange="toggleRevisadoSection(this.checked)" class="w-4 h-4 rounded text-conape-navy">
                         </div>
+
                         <div id="revisado-fields-group">
                             <div class="grid grid-cols-2 gap-2 mt-2">
                                 <div>
@@ -576,6 +581,7 @@
                                         oninput="updateMetadata()">
                                 </div>
                             </div>
+
                             <div class="grid grid-cols-2 gap-2 mt-2">
                                 <div>
                                     <label
@@ -602,7 +608,6 @@
                 <div id="dynamic-editors-container" class="space-y-4">
                     <!-- Inyectado dinámicamente vía JS -->
                 </div>
-
             </div>
 
             <!-- Footer Informático de la Consola -->
@@ -620,6 +625,7 @@
                     <!-- Contenedor Superior con Margen para alinear con el resto del documento -->
                     <!-- Flex-1 y Justify-Center para garantizar centrado matemático en el centro de la página -->
                     <div class="flex-1 flex flex-col justify-center items-center px-[1.2in] text-center gap-6">
+
                         <!-- Logo Oficial Central (Cúpula de CONAPE) -->
                         <img src="https://www.conape.gob.do/_includes/images/logo1b.png" alt="Logo Oficial CONAPE"
                             class="h-44 object-contain mb-2">
@@ -698,6 +704,7 @@
                                         <p class="text-[12px]" style="color: #ffffff !important;"
                                             id="lbl-autor-cargo-cover">Administrador de Base de Datos</p>
                                     </div>
+
                                     <div id="revisado-cover-block">
                                         <span class="font-bold tracking-wider text-[10px] uppercase block"
                                             style="color: #93c5fd !important;">Revisado por:</span>
@@ -1079,7 +1086,9 @@
                     }
                 }
                 if (existingSec) {
-                    existingSec.titulo = FIXED_TITLES[id];
+                    if (!existingSec.titulo) {
+                        existingSec.titulo = FIXED_TITLES[id];
+                    }
                     normalizedSecciones.push(existingSec);
                 }
             });
@@ -1090,7 +1099,9 @@
                 if (!existingFaltantes) {
                     existingFaltantes = JSON.parse(JSON.stringify(defaultReportData.extraSec_faltantes));
                 }
-                existingFaltantes.titulo = FIXED_TITLES["sec_faltantes"];
+                if (!existingFaltantes.titulo) {
+                    existingFaltantes.titulo = FIXED_TITLES["sec_faltantes"];
+                }
                 normalizedSecciones.push(existingFaltantes);
             }
 
@@ -1122,7 +1133,6 @@
             const editable = container.nodeType === 3 ? container.parentElement : container;
 
             if (!editable || !editable.closest('[contenteditable="true"]')) return;
-
             document.execCommand(cmd, false, val);
             saveToLocalStorage();
         }
@@ -1585,6 +1595,7 @@
             const previousScrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
 
             normalizeReportData();
+            
             // Renderizar Metadatos Básicos
             const meta = reportData.metadata;
             document.querySelectorAll('.meta-title-span').forEach(el => el.innerHTML = meta.titulo);
@@ -1650,19 +1661,7 @@
             });
 
             // 1. RENDERIZAR ÍNDICE DINÁMICO (Removido Portada e Índice de la lista)
-            const indexContainer = document.getElementById('dynamic-index-container');
-            if (indexContainer) {
-                indexContainer.innerHTML = '';
-                reportData.secciones.forEach(sec => {
-                    const indexLine = document.createElement('div');
-                    indexLine.className = "index-line";
-                    indexLine.innerHTML = `
-                        <span class="index-title font-medium">${sec.titulo}</span>
-                        <span class="index-number">${sec.pagina}</span>
-                    `;
-                    indexContainer.appendChild(indexLine);
-                });
-            }
+            renderIndexOnly();
 
             // 2. RENDERIZAR EDITORES DE LA CONSOLA DE EDICIÓN IZQUIERDA
             const editorsContainer = document.getElementById('dynamic-editors-container');
@@ -1688,8 +1687,8 @@
                                 </div>
                                 <div>
                                     <label class="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Título del Subtema</label>
-                                    <input type="text" value="${sub.subtitulo}" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs text-slate-955 font-bold" 
-                                        oninput="updateSubtemaTitle('${sec.id}', '${sub.id}', this.value)">
+                                    <input type="text" value="${sub.subtitulo}" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1 text-xs text-slate-955 font-bold"
+                                         oninput="updateSubtemaTitle('${sec.id}', '${sub.id}', this.value)">
                                 </div>
                                 <div class="flex items-center justify-between gap-2 pt-1" onclick="event.stopPropagation()">
                                     <label for="break-sub-${sec.id}-${sub.id}" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider cursor-pointer">Salto de página</label>
@@ -1745,8 +1744,8 @@
                                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 10h16M8 5v14"/></svg>
                                         </button>
                                     </div>
-                                    <div contenteditable="true" id="editor-${sec.id}-${sub.id}" class="p-2 text-xs text-slate-955 bg-white min-h-[100px] border border-slate-300 rounded focus:outline-none" 
-                                        oninput="syncFromEditor('${sec.id}', '${sub.id}', this.innerHTML)"
+                                    <div contenteditable="true" id="editor-${sec.id}-${sub.id}" class="p-2 text-xs text-slate-955 bg-white min-h-[100px] border border-slate-300 rounded focus:outline-none"
+                                         oninput="syncFromEditor('${sec.id}', '${sub.id}', this.innerHTML)"
                                         onkeydown="if (event.key === 'Tab') { event.preventDefault(); event.stopPropagation(); insertTab(event); }">${sub.contenido}</div>
                                 </div>
                             </div>
@@ -1759,11 +1758,18 @@
                                 <div class="handle-seccion cursor-move text-slate-500 hover:text-slate-300 p-1 rounded" onclick="event.preventDefault(); event.stopPropagation();" title="Arrastrar para mover">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
                                 </div>
-                                <span>${sec.titulo}</span>
+                                <span id="summary-title-${sec.id}">${sec.titulo}</span>
                             </div>
                             <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </summary>
                         <div class="p-3 bg-slate-950 border-t border-slate-800 space-y-3">
+                            
+                            <!-- NUEVO: CAMPO DE TEXTO PARA EDITAR EL TEMA PRINCIPAL -->
+                            <div>
+                                <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Título de la Sección</label>
+                                <input type="text" value="${sec.titulo}" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none text-xs text-slate-955 font-bold" oninput="updateSectionTitle('${sec.id}', this.value)" onkeydown="event.stopPropagation()">
+                            </div>
+                            
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="block text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1" title="Se calcula automáticamente basado en saltos de página">Página en Índice (Auto)</label>
@@ -1923,6 +1929,22 @@
             });
         }
 
+        function renderIndexOnly() {
+            const indexContainer = document.getElementById('dynamic-index-container');
+            if (indexContainer) {
+                indexContainer.innerHTML = '';
+                reportData.secciones.forEach(sec => {
+                    const indexLine = document.createElement('div');
+                    indexLine.className = "index-line";
+                    indexLine.innerHTML = `
+                        <span class="index-title font-medium">${sec.titulo}</span>
+                        <span class="index-number">${sec.pagina}</span>
+                    `;
+                    indexContainer.appendChild(indexLine);
+                });
+            }
+        }
+
         // Auxiliar de seteo seguro de atributos de valor
         function safeSetValue(id, val) {
             const el = document.getElementById(id);
@@ -1939,9 +1961,19 @@
             const sec = reportData.secciones.find(s => s.id === secId);
             if (sec) {
                 sec.titulo = value;
+                
+                // 1. Actualiza el título en el documento visual de la derecha
                 document.querySelectorAll(`[data-preview-section-id="${secId}"]`).forEach(el => {
                     el.innerHTML = `<span class="w-1 h-4 bg-conape-red"></span> ${value}`;
                 });
+                
+                // 2. Actualiza el título de la pestaña colapsable en la izquierda
+                const summaryTitle = document.getElementById(`summary-title-${secId}`);
+                if (summaryTitle) summaryTitle.innerText = value;
+                
+                // 3. Re-renderiza el índice general dinámicamente
+                renderIndexOnly();
+                
                 saveToLocalStorage();
             }
         }
@@ -2043,6 +2075,7 @@
             safeSetValue('inp-revisado-cargo', meta.revisadoCargo);
             safeSetValue('inp-autor-cargo', meta.autorCargo || "Administrador de Base de Datos");
             safeSetValue('inp-direccion', meta.direccion || "Dirección de Tecnologías de la Información y Comunicación");
+            
             const chkMostrarRevisado = document.getElementById('chk-mostrar-revisado');
             if (chkMostrarRevisado) chkMostrarRevisado.checked = meta.mostrarRevisado !== false;
 
@@ -2072,6 +2105,7 @@
             reportData.metadata.revisadoCargo = safeGetValue('inp-revisado-cargo');
             reportData.metadata.autorCargo = safeGetValue('inp-autor-cargo');
             reportData.metadata.direccion = safeGetValue('inp-direccion');
+            
             const chkMostrarRevisado = document.getElementById('chk-mostrar-revisado');
             if (chkMostrarRevisado) reportData.metadata.mostrarRevisado = chkMostrarRevisado.checked;
 
@@ -2140,5 +2174,4 @@
         };
     </script>
 </body>
-
 </html>
