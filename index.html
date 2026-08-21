@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -740,7 +739,7 @@
                     <!-- Pie de página con clase de contenedor estricta -->
                     <div class="calibri-footer-container">
                         <span class="meta-ftr-left-span">Evaluación de Desempeño ITICGE</span>
-                        <span class="font-bold">Pág. 2</span>
+                        <span class="calibri-body font-normal">Pág. 2</span>
                     </div>
                 </div>
 
@@ -1999,7 +1998,8 @@
                 
                 <div class="calibri-footer-container">
                     <span class="meta-ftr-left-span">${reportData.metadata.ftrLeft}</span>
-                    <span class="font-bold page-num-span">Pág. 3</span>
+                    <!-- Se quitó font-bold y se agregó calibri-body font-normal -->
+                    <span class="calibri-body font-normal page-num-span">Pág. 3</span>
                 </div>
             `;
             return pageDiv;
