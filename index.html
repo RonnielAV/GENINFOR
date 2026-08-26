@@ -567,8 +567,9 @@
                 <!-- PÁGINA 1: PORTADA OFICIAL -->
                 <div class="paper-page cover-page">
                     <div class="flex-1 flex flex-col justify-center items-center px-[1.2in] text-center gap-6">
-                        <img src="https://www.conape.gob.do/_includes/images/logo1b.png" alt="Logo Oficial CONAPE" class="h-44 object-contain mb-2">
+                        <img src="https://www.conape.gob.do/_includes/images/logo1b.png" alt="Logo Oficial CONAPE" class="h-24 object-contain mb-2">
                         <div class="space-y-5">
+                            
                             <h2 class="text-slate-600 tracking-widest uppercase leading-snug calibri-header meta-direccion-span">
                                 Dirección de Tecnologías de la Información y Comunicación
                             </h2>
@@ -847,6 +848,7 @@
 
         function normalizeTablesInContent(html) {
             if (!html || typeof html !== 'string' || !html.includes('<table')) return html;
+
             try {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
@@ -858,9 +860,10 @@
                     table.removeAttribute('bgcolor');
                     table.removeAttribute('border');
 
+                    // Limpiar atributos style invasivos, PERO respetar si el usuario puso un color personalizado
                     const allElements = table.querySelectorAll('table, thead, tbody, tr, th, td');
                     allElements.forEach(el => {
-                        if (el.style) {
+                        if (el.style && el.dataset.customColor !== 'true') {
                             el.style.backgroundColor = '';
                             el.style.background = '';
                             el.style.color = '';
@@ -953,31 +956,121 @@
         let reportData = JSON.parse(localStorage.getItem('conape_report_data')) || JSON.parse(JSON.stringify(defaultReportData));
         normalizeReportData();
 
-        function toggleButtonState(button, active) {
-            if (!button) return;
-            button.classList.toggle('bg-conape-navy', active);
-            button.classList.toggle('text-white', active);
-            button.classList.toggle('text-slate-955', !active);
-            button.classList.toggle('border-conape-navy', active);
+        // VARIABLES Y EVENTOS GLOBALES PARA LA BARRA CONTEXTUAL DE TABLAS
+        let activeTableCell = null;
+        let activeTableCellSecId = null;
+        let activeTableCellSubId = null;
+
+        document.addEventListener('selectionchange', () => {
+            const selection = window.getSelection();
+            if (!selection || !selection.rangeCount) return;
+            const node = selection.anchorNode;
+            if (!node) return;
+            const element = node.nodeType === 3 ? node.parentElement : node;
+
+            const td = element.closest('td, th');
+            const editor = element.closest('[contenteditable="true"]');
+
+            // Ocultar todas las herramientas de tabla primero
+            document.querySelectorAll('.table-tools-bar').forEach(bar => bar.style.display = 'none');
+
+            // Si estamos dentro de una tabla y en un editor, mostramos la barra correspondiente
+            if (td && editor && editor.id.startsWith('editor-')) {
+                activeTableCell = td;
+                const parts = editor.id.split('-');
+                activeTableCellSecId = parts[1];
+                activeTableCellSubId = parts[2];
+                
+                const toolsBar = editor.parentElement.querySelector('.table-tools-bar');
+                if (toolsBar) toolsBar.style.display = 'flex';
+            } else if (!element.closest('.table-tools-bar')) {
+                activeTableCell = null;
+            }
+        });
+
+        // FUNCIONES DE CONTROL DE TABLA (Filas, Columnas)
+        function tAction(action) {
+            if (!activeTableCell) return;
+            const cell = activeTableCell;
+            const row = cell.closest('tr');
+            const table = cell.closest('table');
+            const colIndex = Array.from(row.cells).indexOf(cell);
+
+            if (action === 'addRowAbove') {
+                const newRow = row.cloneNode(true);
+                Array.from(newRow.cells).forEach(c => { c.innerHTML = '&nbsp;'; c.removeAttribute('data-custom-color'); c.style.backgroundColor = ''; });
+                row.parentNode.insertBefore(newRow, row);
+            }
+            else if (action === 'addRowBelow') {
+                const newRow = row.cloneNode(true);
+                Array.from(newRow.cells).forEach(c => { c.innerHTML = '&nbsp;'; c.removeAttribute('data-custom-color'); c.style.backgroundColor = ''; });
+                if (row.nextSibling) row.parentNode.insertBefore(newRow, row.nextSibling);
+                else row.parentNode.appendChild(newRow);
+            }
+            else if (action === 'addColLeft') {
+                Array.from(table.rows).forEach(r => {
+                    if(r.cells[colIndex]) {
+                        const newCell = r.cells[colIndex].cloneNode(false);
+                        newCell.innerHTML = '&nbsp;'; newCell.removeAttribute('data-custom-color'); newCell.style.backgroundColor = '';
+                        r.insertBefore(newCell, r.cells[colIndex]);
+                    }
+                });
+            }
+            else if (action === 'addColRight') {
+                Array.from(table.rows).forEach(r => {
+                    if(r.cells[colIndex]) {
+                        const newCell = r.cells[colIndex].cloneNode(false);
+                        newCell.innerHTML = '&nbsp;'; newCell.removeAttribute('data-custom-color'); newCell.style.backgroundColor = '';
+                        if (r.cells[colIndex].nextSibling) r.insertBefore(newCell, r.cells[colIndex].nextSibling);
+                        else r.appendChild(newCell);
+                    }
+                });
+            }
+            else if (action === 'delRow') {
+                if (table.rows.length > 1) row.remove();
+                else table.remove();
+            }
+            else if (action === 'delCol') {
+                if (row.cells.length > 1) {
+                    Array.from(table.rows).forEach(r => { if(r.cells[colIndex]) r.cells[colIndex].remove(); });
+                } else {
+                    table.remove();
+                }
+            }
+            forceSaveTableChanges();
         }
 
-        function syncActiveEditor() {
-            const selection = window.getSelection();
-            if (!selection || selection.rangeCount === 0) return;
-            let node = selection.getRangeAt(0).commonAncestorContainer;
-            let editor = node.nodeType === 3 ? node.parentNode.closest('[contenteditable="true"]') : (node.closest ? node.closest('[contenteditable="true"]') : null);
-            
-            if (editor && editor.id) {
-                const parts = editor.id.split('-');
-                if (editor.id.startsWith('editor-') && parts.length >= 3) {
-                    syncFromEditor(parts[1], parts[2], editor.innerHTML);
-                } else if (editor.id.startsWith('preview-') && parts.length >= 3) {
-                    syncFromPreview(parts[1], parts[2], editor.innerHTML);
-                } else {
-                    saveToLocalStorage();
-                }
-            } else {
-                saveToLocalStorage();
+        // FUNCIONES DE CONTROL DE COLOR DE TABLA
+        function tColor(type, inputElem) {
+            if (!activeTableCell) return;
+            const color = inputElem.value;
+            const cell = activeTableCell;
+            const table = cell.closest('table');
+
+            if (type === 'bg') {
+                cell.style.setProperty('background-color', color, 'important');
+                cell.dataset.customColor = 'true';
+            } else if (type === 'text') {
+                cell.style.setProperty('color', color, 'important');
+                cell.dataset.customColor = 'true';
+            } else if (type === 'header') {
+                const thead = table.querySelector('thead');
+                const targetRows = thead ? Array.from(thead.rows) : [table.rows[0]];
+                targetRows.forEach(r => {
+                    Array.from(r.cells).forEach(c => {
+                        c.style.setProperty('background-color', color, 'important');
+                        c.dataset.customColor = 'true';
+                    });
+                });
+            }
+            forceSaveTableChanges();
+        }
+
+        // Guardado forzado robusto para cuando se interactúa con las herramientas de tabla
+        function forceSaveTableChanges() {
+            if (activeTableCellSecId && activeTableCellSubId) {
+                const editorEl = document.getElementById(`editor-${activeTableCellSecId}-${activeTableCellSubId}`);
+                if (editorEl) syncFromEditor(activeTableCellSecId, activeTableCellSubId, editorEl.innerHTML);
             }
         }
 
@@ -1430,6 +1523,58 @@
             }
         }
 
+        function duplicateSection(secId) {
+            const index = reportData.secciones.findIndex(s => s.id === secId);
+            if (index === -1) return;
+            
+            // Crear una copia profunda del tema original
+            const originalSec = reportData.secciones[index];
+            const clonedSec = JSON.parse(JSON.stringify(originalSec));
+            
+            // Asignar nuevos IDs únicos a la sección y a todos sus subtemas
+            clonedSec.id = `sec_dup_${Date.now()}`;
+            const cleanTitle = clonedSec.titulo.replace(/^\d+\.\s*/, '');
+            clonedSec.titulo = cleanTitle + " (Copia)";
+            
+            clonedSec.subtemas.forEach(sub => {
+                sub.id = `sub_dup_${Math.random().toString(36).substr(2, 9)}`;
+            });
+            
+            // Insertar justo debajo del original
+            reportData.secciones.splice(index + 1, 0, clonedSec);
+            
+            // Renumerar todos los temas
+            reportData.secciones.forEach((sec, idx) => {
+                const titleWithoutNum = sec.titulo.replace(/^\d+\.\s*/, '');
+                sec.titulo = `${idx + 1}. ${titleWithoutNum}`;
+            });
+            
+            saveToLocalStorage();
+            renderSidebarAndPages();
+        }
+
+        function duplicateSubtema(secId, subId) {
+            const sec = reportData.secciones.find(s => s.id === secId);
+            if (!sec) return;
+            
+            const subIndex = sec.subtemas.findIndex(s => s.id === subId);
+            if (subIndex === -1) return;
+            
+            // Crear copia profunda del subtema
+            const originalSub = sec.subtemas[subIndex];
+            const clonedSub = JSON.parse(JSON.stringify(originalSub));
+            
+            // Asignar nuevo ID y actualizar título
+            clonedSub.id = `sub_dup_${Date.now()}`;
+            clonedSub.subtitulo = clonedSub.subtitulo ? clonedSub.subtitulo + " (Copia)" : "Subtema (Copia)";
+            
+            // Insertar justo debajo del original
+            sec.subtemas.splice(subIndex + 1, 0, clonedSub);
+            
+            saveToLocalStorage();
+            renderSidebarAndPages();
+        }
+
         function addSubtemaToSection(secId) {
             const sec = reportData.secciones.find(s => s.id === secId);
             if (!sec) return;
@@ -1530,7 +1675,10 @@
                                         <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
                                         Subtema ${subIdx + 1}
                                     </span>
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteSubtema('${sec.id}', '${sub.id}')" class="text-red-500 hover:text-red-400 text-[10px] font-bold uppercase tracking-wider">Eliminar</button>
+                                    <div class="flex gap-2">
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); duplicateSubtema('${sec.id}', '${sub.id}')" class="text-blue-500 hover:text-blue-400 text-[10px] font-bold uppercase tracking-wider" title="Duplicar Subtema">Duplicar</button>
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); deleteSubtema('${sec.id}', '${sub.id}')" class="text-red-500 hover:text-red-400 text-[10px] font-bold uppercase tracking-wider" title="Eliminar Subtema">Eliminar</button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-1">Título del Subtema</label>
@@ -1594,6 +1742,29 @@
                                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                                         </button>
                                     </div>
+
+                                    <!-- NUEVA BARRA DE HERRAMIENTAS CONTEXTUAL PARA TABLAS -->
+                                    <div class="table-tools-bar hidden w-full mb-1 pt-1 border-t border-slate-300 flex-wrap gap-1.5 items-center bg-slate-100 p-1.5 rounded shadow-inner">
+                                        <span class="text-[9px] font-black text-slate-600 uppercase mr-1">Ajustes Tabla:</span>
+                                        <button onmousedown="event.preventDefault(); event.stopPropagation(); tAction('addRowAbove')" class="bg-white hover:bg-slate-200 text-slate-800 font-bold px-1.5 py-0.5 rounded text-[10px] border border-slate-400 shadow-sm" title="Insertar Fila Arriba">Fila ↑</button>
+                                        <button onmousedown="event.preventDefault(); event.stopPropagation(); tAction('addRowBelow')" class="bg-white hover:bg-slate-200 text-slate-800 font-bold px-1.5 py-0.5 rounded text-[10px] border border-slate-400 shadow-sm" title="Insertar Fila Abajo">Fila ↓</button>
+                                        <button onmousedown="event.preventDefault(); event.stopPropagation(); tAction('addColLeft')" class="bg-white hover:bg-slate-200 text-slate-800 font-bold px-1.5 py-0.5 rounded text-[10px] border border-slate-400 shadow-sm" title="Insertar Columna Izquierda">Col ←</button>
+                                        <button onmousedown="event.preventDefault(); event.stopPropagation(); tAction('addColRight')" class="bg-white hover:bg-slate-200 text-slate-800 font-bold px-1.5 py-0.5 rounded text-[10px] border border-slate-400 shadow-sm" title="Insertar Columna Derecha">Col →</button>
+                                        <span class="w-[1px] h-3 bg-slate-400 mx-0.5"></span>
+                                        <button onmousedown="event.preventDefault(); event.stopPropagation(); tAction('delRow')" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-1.5 py-0.5 rounded text-[10px] border border-red-400 shadow-sm" title="Eliminar Fila">Del Fila</button>
+                                        <button onmousedown="event.preventDefault(); event.stopPropagation(); tAction('delCol')" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold px-1.5 py-0.5 rounded text-[10px] border border-red-400 shadow-sm" title="Eliminar Columna">Del Col</button>
+                                        <span class="w-[1px] h-3 bg-slate-400 mx-0.5"></span>
+                                        <label class="flex items-center gap-1 text-[9px] font-bold text-slate-600 cursor-pointer" title="Color de Fondo de Celda">
+                                            Fondo: <input type="color" value="#ffffff" class="w-4 h-4 p-0 border-0 rounded cursor-pointer" onchange="tColor('bg', this)">
+                                        </label>
+                                        <label class="flex items-center gap-1 text-[9px] font-bold text-slate-600 cursor-pointer" title="Color de Texto de Celda">
+                                            Txt: <input type="color" value="#000000" class="w-4 h-4 p-0 border-0 rounded cursor-pointer" onchange="tColor('text', this)">
+                                        </label>
+                                        <label class="flex items-center gap-1 text-[9px] font-bold text-slate-600 cursor-pointer" title="Color del Encabezado Completo">
+                                            Head: <input type="color" value="#1b3c6a" class="w-4 h-4 p-0 border-0 rounded cursor-pointer" onchange="tColor('header', this)">
+                                        </label>
+                                    </div>
+
                                     <div contenteditable="true" id="editor-${sec.id}-${sub.id}" class="p-2 text-xs text-slate-955 bg-white min-h-[100px] border border-slate-300 rounded focus:outline-none"
                                          oninput="syncFromEditor('${sec.id}', '${sub.id}', this.innerHTML)"
                                         onkeydown="if (event.key === 'Tab') { event.preventDefault(); event.stopPropagation(); insertTab(event); }">${sub.contenido}</div>
@@ -1610,9 +1781,14 @@
                                 </div>
                                 <span id="summary-title-${sec.id}">${sec.titulo}</span>
                             </div>
-                            <button onclick="event.preventDefault(); event.stopPropagation(); deleteSection('${sec.id}')" class="text-red-500 hover:text-red-400 text-[10px] font-bold uppercase tracking-wider px-2" title="Eliminar este tema completo">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            </button>
+                            <div class="flex items-center gap-1 px-1">
+                                <button onclick="event.preventDefault(); event.stopPropagation(); duplicateSection('${sec.id}')" class="text-blue-500 hover:text-blue-400 text-[10px] font-bold uppercase tracking-wider px-2" title="Duplicar este tema completo">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                                </button>
+                                <button onclick="event.preventDefault(); event.stopPropagation(); deleteSection('${sec.id}')" class="text-red-500 hover:text-red-400 text-[10px] font-bold uppercase tracking-wider px-2" title="Eliminar este tema completo">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
                             <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </summary>
                         <div class="p-3 bg-slate-950 border-t border-slate-800 space-y-3">
